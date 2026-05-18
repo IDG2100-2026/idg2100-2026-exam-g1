@@ -1,0 +1,22 @@
+GET http://localhost:5000/matches
+
+###
+
+POST http://localhost:5000/matches
+Content-Type: application/json
+
+{
+  "variant": "standard",
+  "rounds": 3,
+  "timeControl": 10,
+  "maxPlayers": 2,
+  "buyIn": 1
+}
+
+###
+GET http://localhost:5000/matches/6a0b74dee6e37843e9e4968f
+
+
+###
+
+DELETE http://localhost:5000/matches/6a0b74dee6e37843e9e4968f
