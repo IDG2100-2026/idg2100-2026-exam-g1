@@ -4,6 +4,7 @@ import AppError from "./src/Utils/AppError.js";
 import authRoutes from "./src/Routes/Auth.routes.js";
 import userRoutes from "./src/Routes/User.routes.js";
 import matchRoutes from "./src/Routes/Match.routes.js";
+import commentRoutes from "./src/Routes/Comment.routes.js";
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/matches", matchRoutes);
+app.use("/comments", commentRoutes);
 
 //Catch any route that don't exist
 app.use((req, res, next) => {

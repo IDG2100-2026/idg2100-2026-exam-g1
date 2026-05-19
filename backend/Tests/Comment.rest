@@ -1,0 +1,21 @@
+GET http://localhost:5000/matches
+
+###
+
+POST http://localhost:5000/comments
+Content-Type: application/json
+
+{
+  "content": "test game!",
+  "targetType": "match",
+  "targetId": "6a0b7531e6e37843e9e49698"
+}
+
+
+###
+DELETE http://localhost:5000/comments/6a0c9dd2fc23a9af8e76af03
+
+
+###
+
+GET http://localhost:5000/comments?targetId=6a0b74dee6e37843e9e4968f
