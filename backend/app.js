@@ -10,6 +10,7 @@ const app = express();
 
 app.use(cookieParser());
 app.use(express.json());
+app.use("/uploads", express.static("uploads"));
 
 //Routes
 app.use("/auth", authRoutes);
@@ -25,6 +26,11 @@ app.use((req, res, next) => {
 //Global error handler
 app.use((err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
+
+  //Hnadle mongoose cast errors
+  if (err.name === "CastError") {
+    return res.status(400).json({ statusCode: 400, message: "Invalid ID" });
+  }
 
   const message =
     process.env.NODE_ENV === "production" && err.statusCode === 500

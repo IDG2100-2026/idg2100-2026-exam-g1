@@ -1,5 +1,22 @@
 import Comment from "../Models/Comment.model.js";
 import AppError from "../Utils/AppError.js";
+import { body } from "express-validator";
+
+//------------------COMMENT RULES-----------------------
+export const createCommentRules = [
+  body("content")
+    .trim()
+    .notEmpty()
+    .withMessage("Comment cannot be empty")
+    .isLength({ max: 500 })
+    .withMessage("Comment cannot exeed 500 characters"),
+  body("targetType")
+    .notEmpty()
+    .withMessage("targetType is required")
+    .isIn(["match", "tournament"])
+    .withMessage("targetType must be match or tournament"),
+  body("targetId").notEmpty().withMessage("targetId is required"),
+];
 
 //Get comments
 export const getComments = async (req, res, next) => {
@@ -42,6 +59,6 @@ export const deleteComment = async (req, res, next) => {
     return next(new AppError("Not allowed", 403));
   }
 
-  await comment.deleteOne();
+  await Comment.findByIdAndDelete(req.params.id);
   res.status(200).json({ message: "Comment deleted" });
 };

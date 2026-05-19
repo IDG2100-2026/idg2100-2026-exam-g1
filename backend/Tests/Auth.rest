@@ -1,48 +1,58 @@
+### REGISTER - should fail validation (multiple errors)
 POST http://localhost:5000/auth/register
-content-type: application/json
+Content-Type: application/json
 
 {
-  "username": "tse23r",
-  "email": "t23t@test.com",
-  "password": "assw"
+  "username": "ab",
+  "email": "notanemail",
+  "password": "weak"
 }
 
+### REGISTER - should succeed if username and email is not in use
+POST http://localhost:5000/auth/register
+Content-Type: application/json
 
-###
+{
+  "username": "testpassword",
+  "email": "testpassword@test.com",
+  "password": "Password1"
+}
 
+### LOGIN - should fail (wrong password)
 POST http://localhost:5000/auth/login
 Content-Type: application/json
 
 {
   "login": "testuser",
-  "password": "Password123"
+  "password": "wrongpassword"
 }
 
 
-###
+### LOGIN - should succeed
+POST http://localhost:5000/auth/login
+Content-Type: application/json
 
-GET http://localhost:5000/users
+{
+  "login": "testuser2",
+  "password": "Password1"
+}
 
-###
+### LOGIN - should work with email too
+POST http://localhost:5000/auth/login
+Content-Type: application/json
 
-GET http://localhost:5000/users
-Authorization: Bearer randomgarbage
+{
+  "login": "test2@test.com",
+  "password": "Password1"
+}
 
-###
-
-GET http://localhost:5000/users
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2YTA1ZTNiZDhhNDE5ZjlmMDQzYWQ4MTQiLCJyb2xlIjoidXNlciIsImlhdCI6MTc3ODc4NTM5MSwiZXhwIjoxNzc4Nzg2MjkxfQ.4ZMcVCh844w5mGU_m_6LozZsxr-cT1-NynSQclKNfaE
+### LOGOUT - should succeed
+POST http://localhost:5000/auth/logout
 
 
-### 
-
+### REFRESH - should succeed (uses cookie from login)
 POST http://localhost:5000/auth/refresh
 
-###
-
+### REFRESH - should fail (need to log out first)
 POST http://localhost:5000/auth/refresh
 Cookie: refreshToken=fakegarbagetoken
-
-###
-
-POST http://localhost:5000/auth/logout

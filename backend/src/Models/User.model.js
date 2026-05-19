@@ -25,6 +25,17 @@ const userSchema = new Schema(
       lowercase: true,
       trim: true,
     },
+    bio: {
+      type: String,
+      maxLength: 500,
+      trim: true,
+      default: "",
+    },
+
+    profilePicture: {
+      type: String,
+      default: null,
+    },
 
     points: {
       type: Number,

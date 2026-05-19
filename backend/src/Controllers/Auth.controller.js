@@ -38,11 +38,15 @@ export const register = async (req, res, next) => {
   //Get required fields
   const { username, email, password } = req.body;
 
-  //Check if a user with this email already exists
-  const existingUser = await User.findOne({ email });
-  //Pass error if they do
+  //Check if a user with this email or username already exists
+  const existingUser = await User.findOne({ $or: [{ email }, { username }] });
   if (existingUser) {
-    return next(new AppError("Email already in use", 400));
+    if (existingUser.email === email) {
+      return next(new AppError("Email already in use", 400));
+    }
+    if (existingUser.username === username) {
+      return next(new AppError("Username already taken", 400));
+    }
   }
 
   //Hash password
