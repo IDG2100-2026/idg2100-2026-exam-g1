@@ -87,6 +87,30 @@ export const joinMatch = async (req, res, next) => {
   res.status(200).json(match);
 };
 
+//Leave match
+export const leaveMatch = async (req, res, next) => {
+  const match = await Match.findById(req.params.id);
+  if (!match) return next(new AppError("Match not found", 404));
+
+  //Can only leave if match is waiting
+  if (match.status !== "waiting") {
+    return next(new AppError("Cannot leave a match that already started", 400));
+  }
+
+  //Check if player is in match
+  const isInMatch = match.players.some(
+    (p) => p.user.toString() === req.user._id.toString(),
+  );
+  if (!isInMatch) return next(new AppError("You are not in this match", 400));
+
+  //Remove from match
+  match.players = match.players.filter(
+    (p) => p.user.toString() !== req.user._id.toString(),
+  );
+  await match.save();
+  res.status(200).json({ message: "Left mach successfully" });
+};
+
 //Delete match
 export const deleteMatch = async (req, res, next) => {
   const match = await Match.findById(req.params.id);

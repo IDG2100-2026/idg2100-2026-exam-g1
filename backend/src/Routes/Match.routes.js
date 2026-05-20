@@ -17,5 +17,6 @@ router.post(
 );
 router.post("/:id/join", auth, matchController.joinMatch); //Join match - auth required
 router.delete("/:id", auth, matchController.deleteMatch); //Delete match - auth required
+router.post("/:id/leave", auth, matchController.leaveMatch); //Leave match - auth reqired
 
 export default router;
