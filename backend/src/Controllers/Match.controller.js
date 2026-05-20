@@ -9,7 +9,7 @@ export const createMatchRules = [
     .notEmpty()
     .withMessage("Variant is required")
     .isIn(["standard", "straights"])
-    .withMessage("Variant must be standard or straight"),
+    .withMessage("Variant must be standard or straights"),
   body("rounds")
     .notEmpty()
     .withMessage("Rounds is required")
@@ -33,9 +33,34 @@ export const createMatchRules = [
 ];
 
 //----------------GET ALL MATCHES----------------
+//mostly from https://www.youtube.com/watch?v=ZX3qt0UWifc
 export const getAllMatches = async (req, res, next) => {
-  const matches = await Match.find();
-  res.status(200).json(matches);
+  const { variant, rounds, status, timeControl } = req.query;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  //Filter
+  const filter = {};
+  if (variant) filter.variant = variant;
+  if (rounds) filter.rounds = parseInt(rounds);
+  if (timeControl) filter.timeControl = parseInt(timeControl);
+  if (status) filter.status = status;
+
+  const total = await Match.countDocuments(filter);
+  const results = {};
+
+  //Add next object if its not the last page
+  if (skip + limit < total) {
+    results.next = { page: page + 1, limit };
+  }
+
+  //Adds previous object if its not the first page
+  if (skip > 0) {
+    results.previous = { page: page - 1, limit };
+  }
+  results.results = await Match.find(filter).skip(skip).limit(limit);
+  res.status(200).json(results);
 };
 
 //----------------GET ONE MATCH----------------

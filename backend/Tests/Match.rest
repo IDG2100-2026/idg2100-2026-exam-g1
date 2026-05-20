@@ -38,7 +38,7 @@ POST http://localhost:5000/matches
 Content-Type: application/json
 
 {
-  "variant": "standard",
+  "variant": "straights",
   "rounds": 3,
   "timeControl": 10,
   "maxPlayers": 2,
@@ -52,3 +52,15 @@ POST http://localhost:5000/matches/6a0cc458bf95e118cdec5701/join
 
 ### DELETE match - should succeed
 DELETE http://localhost:5000/matches/6a0cc458bf95e118cdec5701
+
+
+### GET matches page 1 limit 2
+GET http://localhost:5000/matches?page=1&limit=2
+
+
+### GET matches page 2 limit 2
+GET http://localhost:5000/matches?page=2&limit=2
+
+
+### GET matches filter by variant
+GET http://localhost:5000/matches?variant=straights

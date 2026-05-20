@@ -35,3 +35,37 @@ DELETE http://localhost:5000/comments/6a0cc2fcbf95e118cdec56ed
 ### DELETE comment - should fail (already deleted)
 DELETE http://localhost:5000/comments/6a0cc2fcbf95e118cdec56ed
 
+### POST comment - create one to edit
+POST http://localhost:5000/comments
+Content-Type: application/json
+
+{
+  "content": "Original comment",
+  "targetType": "match",
+  "targetId": "6a0b74dee6e37843e9e4968f"
+}
+
+### EDIT comment - should succeed
+PUT http://localhost:5000/comments/6a0dd70225a6a94b954e219d
+Content-Type: application/json
+
+{
+  "content": "Edited comment"
+}
+
+
+### EDIT comment - should fail (empty content)
+PUT http://localhost:5000/comments/6a0dd70225a6a94b954e219d
+Content-Type: application/json
+
+{
+  "content": ""
+}
+
+### EDIT comment - should fail (comment not found)
+PUT http://localhost:5000/comments/507f1f77bcf86cd799439011
+Content-Type: application/json
+
+{
+  "content": "Edited comment"
+}

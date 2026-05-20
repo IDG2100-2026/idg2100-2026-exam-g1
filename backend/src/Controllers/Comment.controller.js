@@ -18,7 +18,17 @@ export const createCommentRules = [
   body("targetId").notEmpty().withMessage("targetId is required"),
 ];
 
-//Get comments
+//-------------------EDIT COMMENT RULES-------------------
+export const updateCommentRules = [
+  body("content")
+    .trim()
+    .notEmpty()
+    .withMessage("Comment cannot be empty")
+    .isLength({ max: 500 })
+    .withMessage("Comment cannot exeed 500 characters"),
+];
+
+//-----------------------GET COMMENTS-----------------------
 export const getComments = async (req, res, next) => {
   const { targetType, targetId } = req.query;
 
@@ -33,7 +43,7 @@ export const getComments = async (req, res, next) => {
   res.status(200).json(comments);
 };
 
-//Post commnent
+//-----------------------POST COMMENT-----------------------
 export const createComment = async (req, res, next) => {
   const comment = await Comment.create({
     content: req.body.content,
@@ -46,7 +56,21 @@ export const createComment = async (req, res, next) => {
   res.status(201).json(comment);
 };
 
-//Delete comment
+//-----------------------EDIT COMMENT-----------------------
+export const updateComment = async (req, res, next) => {
+  const comment = await Comment.findById(req.params.id);
+  if (!comment) return next(new AppError("Comment not found", 404));
+
+  //Only owner can edit
+  if (comment.author.toString() !== req.user._id.toString()) {
+    return next(new AppError("Not allowed", 403));
+  }
+  comment.content = req.body.content;
+  await comment.save();
+  res.status(200).json(comment);
+};
+
+//-----------------------DELETE COMMENT-----------------------
 export const deleteComment = async (req, res, next) => {
   const comment = await Comment.findById(req.params.id);
   if (!comment) return next(new AppError("Comment not found", 404));

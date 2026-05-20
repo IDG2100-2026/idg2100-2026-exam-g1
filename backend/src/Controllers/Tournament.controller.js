@@ -53,21 +53,33 @@ export const createTournamentRules = [
 //supports: ?sort=date|title|player, ?search=string, ?status=upcoming|ongoing|finished
 export const getAllTournaments = async (req, res, next) => {
   const { sort, search, status } = req.query;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
 
   const filter = {};
 
-  //Filter by status if provided
-  if (status) {
-    filter.status = status;
-  }
+  //Filter by status
+  if (status) filter.status = status;
 
   //Search by title - min 3 characters
   if (search && search.length >= 3) {
     filter.title = { $regex: search, $options: "i" };
   }
 
-  //Get torunaments with filter
-  let tournaments = await Tournament.find(filter);
+  const total = await Tournament.countDocuments(filter);
+  const results = {};
+
+  //Add next object if its not the last page
+  if (skip + limit < total) {
+    results.next = { page: page + 1, limit };
+  }
+  //Adds previous object if its not the first page
+  if (skip > 0) {
+    results.previous = { page: page - 1, limit };
+  }
+
+  let tournaments = await Tournament.find(filter).skip(skip).limit(limit);
 
   //Sort results
   if (sort === "title") {
@@ -78,8 +90,8 @@ export const getAllTournaments = async (req, res, next) => {
     //Default sort by start date
     tournaments.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
   }
-
-  res.status(200).json(tournaments);
+  results.results = tournaments;
+  res.status(200).json(results);
 };
 
 //----------------------GET ONE TOURNAMENT----------------------

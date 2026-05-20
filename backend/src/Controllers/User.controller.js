@@ -38,22 +38,21 @@ export const updatePasswordRules = [
     .withMessage("Password must contain at least one uppercase letter"),
 ];
 
-//Get all users
-//Should be limited to admins
+//-------------------GET ALL USERS-------------------
 export const getAllUsers = async (req, res, next) => {
   const users = await User.find();
 
   res.status(200).json(users);
 };
 
-//Get one user
+//-------------------GET ONE USER-------------------
 export const getUser = async (req, res, next) => {
   const user = await User.findById(req.params.id);
   if (!user) return next(new AppError("User not found", 404));
   res.status(200).json(user);
 };
 
-//Update user
+//-------------------UPDATE USER-------------------
 export const updateUser = async (req, res, next) => {
   if (req.user._id.toString() !== req.params.id && req.user.role !== "admin") {
     return next(new AppError("Not allowed", 403));
@@ -71,7 +70,7 @@ export const updateUser = async (req, res, next) => {
   res.status(200).json(user);
 };
 
-//Update password
+//-------------------UPDATE PASSWORD-------------------
 export const updatePassword = async (req, res, next) => {
   //Only owner can change password
   if (req.user._id.toString() !== req.params.id) {
@@ -92,7 +91,7 @@ export const updatePassword = async (req, res, next) => {
   res.status(200).json({ message: "Password updated" });
 };
 
-//Update user profile picture
+//-------------------UPDATE PROFILE PICTURE-------------------
 export const updateAvatar = async (req, res, next) => {
   if (req.user._id.toString() !== req.params.id && req.user.role !== "admin") {
     return next(new AppError("Not allowed", 403));
@@ -111,7 +110,7 @@ export const updateAvatar = async (req, res, next) => {
   res.status(200).json(user);
 };
 
-//Delete user
+//-------------------DELETE USER-------------------
 export const deleteUser = async (req, res, next) => {
   if (req.user._id.toString() !== req.params.id && req.user.role !== "admin") {
     return next(new AppError("Not allowed", 403));
