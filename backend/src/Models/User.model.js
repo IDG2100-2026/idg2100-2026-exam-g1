@@ -9,7 +9,7 @@ const userSchema = new Schema(
       lowercase: true,
       trim: true,
       minLength: 3,
-      maxLength: 24,
+      maxLength: 20,
     },
 
     password: {
@@ -25,6 +25,22 @@ const userSchema = new Schema(
       lowercase: true,
       trim: true,
     },
+
+    verifiedEmail: {
+      type: Boolean,
+      default: false,
+    },
+
+    verificationCode: {
+      type: String,
+      select: false,
+    },
+
+    verificationCodeExpiry: {
+      type: Date,
+      select: false,
+    },
+
     bio: {
       type: String,
       maxLength: 500,

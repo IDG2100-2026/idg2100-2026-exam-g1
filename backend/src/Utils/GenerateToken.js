@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
 import { TOKEN_EXPIRY } from "../Config/Constants.js";
+import crypto from "crypto";
 
+//--------------JWT TOKENS--------------
 const generateTokens = (userId, role) => {
   //Access token
   const accessToken = jwt.sign(
@@ -17,6 +19,11 @@ const generateTokens = (userId, role) => {
   );
 
   return { accessToken, refreshToken };
+};
+
+//--------------EMAIL TOKEN--------------
+export const generateVerificationCode = () => {
+  return crypto.randomInt(1000, 9999).toString();
 };
 
 export default generateTokens;

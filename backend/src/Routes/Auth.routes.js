@@ -17,5 +17,7 @@ router.post("/login", authController.login);
 router.post("/logout", authController.logout);
 //Refresh token
 router.post("/refresh", authController.refresh);
+//verify email
+router.get("/verify/:code", authController.verifyEmail);
 
 export default router;
