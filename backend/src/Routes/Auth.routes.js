@@ -19,5 +19,7 @@ router.post("/logout", authController.logout);
 router.post("/refresh", authController.refresh);
 //verify email
 router.get("/verify/:code", authController.verifyEmail);
+//Resend verification email
+router.post("/resend-verification", authController.resendVerification);
 
 export default router;
