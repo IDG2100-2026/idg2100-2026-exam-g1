@@ -1,6 +1,7 @@
 import Match from "../Models/Match.model.js";
 import AppError from "../Utils/AppError.js";
 import { body } from "express-validator";
+import User from "../Models/User.model.js";
 
 //---------------CREATE MATCH RULES----------------
 export const createMatchRules = [
@@ -31,22 +32,32 @@ export const createMatchRules = [
     .withMessage("Buy in must be 1, 10 or 50"),
 ];
 
-//Get all matches
+//----------------GET ALL MATCHES----------------
 export const getAllMatches = async (req, res, next) => {
   const matches = await Match.find();
   res.status(200).json(matches);
 };
 
-//Get one match
+//----------------GET ONE MATCH----------------
 export const getMatch = async (req, res, next) => {
   const match = await Match.findById(req.params.id);
   if (!match) return next(new AppError("Match not found", 404));
   res.status(200).json(match);
 };
 
-//Create match
-//Need to figure out buy in
+//----------------CREATE MATCH----------------
 export const createMatch = async (req, res, next) => {
+  //Check if user has enough points
+  const user = await User.findById(req.user._id);
+  if (user.points < req.body.buyIn) {
+    return next(new AppError("Not enough points for buy-in", 400));
+  }
+
+  //Deduct points
+  user.points -= req.body.buyIn;
+  await user.save();
+
+  //Create match
   const match = await Match.create({
     variant: req.body.variant,
     rounds: req.body.rounds,
@@ -59,7 +70,7 @@ export const createMatch = async (req, res, next) => {
   res.status(201).json(match);
 };
 
-//Join match
+//----------------JOIN MATCH----------------
 //need to figure out buy in
 export const joinMatch = async (req, res, next) => {
   const match = await Match.findById(req.params.id);
@@ -81,13 +92,23 @@ export const joinMatch = async (req, res, next) => {
     return next(new AppError("Match is full", 400));
   }
 
+  //check points for buy in
+  const user = await User.findById(req.user._id);
+  if (user.points < match.buyIn) {
+    return next(new AppError("Not enough points for buy-in", 400));
+  }
+
+  //Deduct points
+  user.points -= match.buyIn;
+  await user.save();
+
   //push players to match
   match.players.push({ user: req.user._id, points: match.buyIn });
   await match.save();
   res.status(200).json(match);
 };
 
-//Leave match
+//----------------LEAVE MATCH----------------
 export const leaveMatch = async (req, res, next) => {
   const match = await Match.findById(req.params.id);
   if (!match) return next(new AppError("Match not found", 404));
@@ -103,15 +124,20 @@ export const leaveMatch = async (req, res, next) => {
   );
   if (!isInMatch) return next(new AppError("You are not in this match", 400));
 
+  //return points
+  const user = await User.findById(req.user._id);
+  user.points += match.buyIn;
+  await user.save();
+
   //Remove from match
   match.players = match.players.filter(
     (p) => p.user.toString() !== req.user._id.toString(),
   );
   await match.save();
-  res.status(200).json({ message: "Left mach successfully" });
+  res.status(200).json({ message: "Left match successfully" });
 };
 
-//Delete match
+//----------------DELETE MATCH----------------
 export const deleteMatch = async (req, res, next) => {
   const match = await Match.findById(req.params.id);
   if (!match) return next(new AppError("Match not found", 404));

@@ -105,6 +105,41 @@ export const verifyEmail = async (req, res, next) => {
   res.status(200).json({ message: "Email verified. You can now login" });
 };
 
+//-----------------RESEND VERIFICATION------------------
+export const resendVerification = async (req, res, next) => {
+  const { email } = req.body;
+  //Find user by email
+  const user = await User.findOne({ email });
+  if (!user) return next(new AppError("No account with that email", 404));
+
+  //If verified no need to resend
+  if (user.verifiedEmail) {
+    return next(new AppError("Email already verified", 400));
+  }
+
+  //Generate new code
+  const verificationCode = generateVerificationCode();
+  const verificationCodeExpiry = new Date(Date.now() + 3600000);
+
+  user.verificationCode = verificationCode;
+  user.verificationCodeExpiry = verificationCodeExpiry;
+  await user.save();
+
+  //Send mail
+  await transporter.sendMail({
+    from: "noreply@spanishdicepoker.com",
+    to: email,
+    subject: "Verify your email",
+    html: `
+    <h2>Welcome to Spanish Dice Poker</h2>
+    <p>Your new verification code is: <strong>${verificationCode}</strong></p>
+    <p>This code expires in <strong>1 hour</strong></p>
+    <p>Or click here: <a href="${process.env.CLIENT_URL}/verify/${verificationCode}">Verify email</a></p>`,
+  });
+
+  res.status(200).json({ message: "Verification email sent" });
+};
+
 //-------------------LOGIN RULES-----------------------
 export const loginRules = [
   body("login").trim().notEmpty().withMessage("Email or username is required"),
@@ -123,6 +158,11 @@ export const login = async (req, res, next) => {
   //If user not found
   if (!user) {
     return next(new AppError("Invalid email or password", 401));
+  }
+
+  //Ban check
+  if (user.isBanned) {
+    return next(new AppError("Your account has been banned", 403));
   }
 
   //Compare password

@@ -182,6 +182,10 @@ export const joinTournament = async (req, res, next) => {
     return next(new AppError("Not enough points for buy-in", 400));
   }
 
+  //Deduct points
+  user.points -= tournament.buyIn;
+  await user.save();
+
   //Add player
   tournament.players.push({ user: req.user._id, points: 0 });
   await tournament.save();
@@ -199,6 +203,11 @@ export const leaveTournament = async (req, res, next) => {
   );
   if (!isInTournament)
     return next(new AppError("You are not in this tournament", 400));
+
+  //Return points
+  const user = await User.findById(req.user._id);
+  user.points += tournament.buyIn;
+  await user.save();
 
   //Remove player
   tournament.players = tournament.players.filter(

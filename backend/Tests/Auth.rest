@@ -66,3 +66,22 @@ POST http://localhost:5000/auth/refresh
 ### REFRESH - should fail (need to log out first)
 POST http://localhost:5000/auth/refresh
 Cookie: refreshToken=fakegarbagetoken
+
+###
+
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "username": "resendtest",
+  "email": "resend@test.com",
+  "password": "Password1"
+}
+
+### RESEND - should succeed and send new email
+POST http://localhost:5000/auth/resend-verification
+Content-Type: application/json
+
+{
+  "email": "resend@test.com"
+}
