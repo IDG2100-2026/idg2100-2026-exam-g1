@@ -4,7 +4,7 @@ import AppError from "../Utils/AppError.js";
 const auth = (req, res, next) => {
   //Check for SKIP_AUTH in .env and attach fake user if true
   if (process.env.SKIP_AUTH === "true") {
-    req.user = { _id: "test_id", role: "admin" };
+    req.user = { _id: "6a0cc7d7b757fb26b1f9ae08", role: "admin" };
     return next();
   }
 

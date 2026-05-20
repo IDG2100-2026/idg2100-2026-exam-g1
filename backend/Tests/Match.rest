@@ -1,0 +1,54 @@
+### GET all matches - public, should succeed
+GET http://localhost:5000/matches
+
+### GET one match - public, should succeed
+GET http://localhost:5000/matches/6a0b7531e6e37843e9e49698
+
+
+### GET one match - should fail (invalid id)
+GET http://localhost:5000/matches/invalidid
+
+### POST match - should fail validation (invalid variant)
+POST http://localhost:5000/matches
+Content-Type: application/json
+
+{
+  "variant": "invalid",
+  "rounds": 3,
+  "timeControl": 10,
+  "maxPlayers": 2,
+  "buyIn": 1
+}
+
+
+### POST match - should fail validation (invalid rounds)
+POST http://localhost:5000/matches
+Content-Type: application/json
+
+{
+  "variant": "standard",
+  "rounds": 4,
+  "timeControl": 10,
+  "maxPlayers": 2,
+  "buyIn": 1
+}
+
+### POST match - should succeed
+POST http://localhost:5000/matches
+Content-Type: application/json
+
+{
+  "variant": "standard",
+  "rounds": 3,
+  "timeControl": 10,
+  "maxPlayers": 2,
+  "buyIn": 1
+}
+
+
+### JOIN match - should succeed (use match id from above)
+POST http://localhost:5000/matches/6a0cc458bf95e118cdec5701/join
+
+
+### DELETE match - should succeed
+DELETE http://localhost:5000/matches/6a0cc458bf95e118cdec5701

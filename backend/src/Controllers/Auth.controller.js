@@ -3,8 +3,11 @@ import jwt from "jsonwebtoken";
 import User from "../Models/User.model.js";
 import AppError from "../Utils/AppError.js";
 import { body } from "express-validator";
-import generateTokens from "../Utils/GenerateToken.js";
+import generateTokens, {
+  generateVerificationCode,
+} from "../Utils/GenerateToken.js";
 import { TOKEN_EXPIRY } from "../Config/Constants.js";
+import transporter from "../Config/Email.js";
 
 //-----------------REGISTRATION RULES----------------
 export const registerRules = [
@@ -14,7 +17,7 @@ export const registerRules = [
     .withMessage("Username is required")
     .isLength({ min: 3, max: 20 })
     .withMessage("Username must be between 3 and 20 characters")
-    .isAlphanumeric()
+    .matches(/^[a-zA-Z0-9æøåÆØÅ]+$/)
     .withMessage("Username can only contain letters and numbers"),
   body("email")
     .trim()
@@ -25,12 +28,10 @@ export const registerRules = [
   body("password")
     .notEmpty()
     .withMessage("Password is required")
-    .isLength({ min: 6 })
-    .withMessage("Password must be at least 6 characters")
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 characters")
     .matches(/[0-9]/)
-    .withMessage("Password must contain at least one number")
-    .matches(/[A-Z]/)
-    .withMessage("Password must contain at least one uppercase letter"),
+    .withMessage("Password must contain at least one number"),
 ];
 
 //------------------REGISTER-----------------------
@@ -38,24 +39,70 @@ export const register = async (req, res, next) => {
   //Get required fields
   const { username, email, password } = req.body;
 
-  //Check if a user with this email already exists
-  const existingUser = await User.findOne({ email });
-  //Pass error if they do
+  //Check if a user with this email or username already exists
+  const existingUser = await User.findOne({ $or: [{ email }, { username }] });
   if (existingUser) {
-    return next(new AppError("Email already in use", 400));
+    if (existingUser.email === email) {
+      return next(new AppError("Email already in use", 400));
+    }
+    if (existingUser.username === username) {
+      return next(new AppError("Username already taken", 400));
+    }
   }
 
   //Hash password
   const hashedPassword = await bcrypt.hash(password, 10);
+
+  //Generate email verification code
+  const verificationCode = generateVerificationCode();
+  const verificationCodeExpiry = new Date(Date.now() + 3600000);
 
   //Create user
   const user = await User.create({
     username,
     email,
     password: hashedPassword,
+    verificationCode,
+    verificationCodeExpiry,
   });
 
-  res.status(201).json({ message: "User created successfully" });
+  //Send verification mail
+  await transporter.sendMail({
+    from: "noreply@spanishdicepoker.com",
+    to: email,
+    subject: "Verify your email",
+    html: `
+    <h2>Welcome to Spanish Dice Poker</h2>
+    <p>Your verification code is: <strong>${verificationCode}</strong></p>
+    <p>This code expires in <strong>1 hour</strong></p>
+    <p>Or click here: <a href="${process.env.CLIENT_URL}/verify/${verificationCode}">Verify email</a></p>`,
+  });
+
+  res.status(201).json({
+    message:
+      "User created successfully. Please check your email to verify your account",
+  });
+};
+
+//------------------VERIFY EMAIL--------------------
+export const verifyEmail = async (req, res, next) => {
+  //Reads verification code from url
+  const { code } = req.params;
+
+  //Find matching user
+  const user = await User.findOne({
+    verificationCode: code,
+    verificationCodeExpiry: { $gt: new Date() },
+  }).select("+verificationCode +verificationCodeExpiry");
+
+  if (!user) return next(new AppError("Invalid or expired code", 400));
+
+  //Mark as verified and clear code
+  user.verifiedEmail = true;
+  user.verificationCode = undefined;
+  user.verificationCodeExpiry = undefined;
+  await user.save();
+  res.status(200).json({ message: "Email verified. You can now login" });
 };
 
 //-------------------LOGIN RULES-----------------------
@@ -84,6 +131,13 @@ export const login = async (req, res, next) => {
   //If password wrong
   if (!matchingPassword) {
     return next(new AppError("Invalid email or password", 401));
+  }
+
+  //Check if verified
+  if (!user.verifiedEmail) {
+    return next(
+      new AppError("Please verify your email before logging in", 401),
+    );
   }
 
   //Generate tokens

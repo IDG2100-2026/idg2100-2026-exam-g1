@@ -1,0 +1,37 @@
+### GET all matches (to find a id to use)
+GET http://localhost:5000/matches
+
+### GET comments for a match - should fail (missing targetType)
+GET http://localhost:5000/comments?targetId=6a0b74dee6e37843e9e4968f
+
+### GET comments for a match - should succeed
+GET http://localhost:5000/comments?targetType=match&targetId=6a0b74dee6e37843e9e4968f
+
+### POST comment (should fail if SKIP_AUTH = false)
+POST http://localhost:5000/comments
+Content-Type: application/json
+
+{
+  "content": "bad!",
+  "targetType": "match",
+  "targetId": "6a0b74dee6e37843e9e4968f"
+}
+
+### POST comment - should fail validation (empty content)
+POST http://localhost:5000/comments
+Content-Type: application/json
+
+{
+  "content": "",
+  "targetType": "match",
+  "targetId": "6a0b74dee6e37843e9e4968f"
+}
+
+
+### DELETE comment - should succeed (use _id from post response above)
+DELETE http://localhost:5000/comments/6a0cc2fcbf95e118cdec56ed
+
+
+### DELETE comment - should fail (already deleted)
+DELETE http://localhost:5000/comments/6a0cc2fcbf95e118cdec56ed
+

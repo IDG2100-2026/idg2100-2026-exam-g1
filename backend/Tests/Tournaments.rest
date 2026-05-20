@@ -1,0 +1,68 @@
+### GET all tournaments
+GET http://localhost:5000/tournaments
+
+### GET one tournament
+GET http://localhost:5000/tournaments/6a0d07ccd29ea86b8f78b00e
+
+### CREATE tournament - should fail (if SKIP_AUTH is false)
+POST http://localhost:5000/tournaments
+Content-Type: application/json
+
+{
+  "title": "Test Tournament",
+  "description": "A test tournament",
+  "startDate": "2026-06-01T10:00:00.000Z",
+  "totalRounds": 5,
+  "variant": "standard",
+  "timeControl": 10,
+  "buyIn": 1,
+  "maxPlayers": 4
+}
+
+
+### CREATE tournament - should fail validation (title too long)
+POST http://localhost:5000/tournaments
+Content-Type: application/json
+
+{
+  "title": "This title is way too long and should fail the validation check because it exceeds fifty characters",
+  "description": "A test tournament",
+  "startDate": "2026-06-01T10:00:00.000Z",
+  "totalRounds": 3,
+  "variant": "standard",
+  "timeControl": 10,
+  "buyIn": 1,
+  "maxPlayers": 4
+}
+
+### JOIN tournament
+POST http://localhost:5000/tournaments/6a0d07c9d29ea86b8f78b00c/join
+
+
+### LEAVE tournament
+POST http://localhost:5000/tournaments/6a0d07c9d29ea86b8f78b00c/leave
+
+
+### CANCEL tournament
+PUT http://localhost:5000/tournaments/6a0d07c9d29ea86b8f78b00c/cancel
+
+### UPDATE tournament
+PUT http://localhost:5000/tournaments/6a0d07c9d29ea86b8f78b00c
+Content-Type: application/json
+
+{
+  "title": "Updated Tournament",
+  "description": "Updated description",
+  "startDate": "2026-06-01T10:00:00.000Z",
+  "totalRounds": 5,
+  "variant": "straights",
+  "timeControl": 30,
+  "buyIn": 10,
+  "maxPlayers": 6,
+  "maxElo": 9999,
+  "minElo": 0
+}
+
+
+### DELETE tournament
+DELETE http://localhost:5000/tournaments/6a0d07ccd29ea86b8f78b00e

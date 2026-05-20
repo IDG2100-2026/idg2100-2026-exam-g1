@@ -1,0 +1,71 @@
+### GET all users - admin only
+GET http://localhost:5000/users
+
+### GET one user - public
+GET http://localhost:5000/users/6a061b95652f89c028c9f9cf
+
+### GET one user - should fail (invalid id)
+GET http://localhost:5000/users/invalidid
+
+### UPDATE user - should succeed
+PUT http://localhost:5000/users/6a061b95652f89c028c9f9cf
+Content-Type: application/json
+
+{
+  "username": "updatedusername",
+  "bio": "this is my bio"
+}
+
+### UPDATE user - should fail validation (username too short)
+PUT http://localhost:5000/users/6a05e3bd8a419f9f043ad814
+Content-Type: application/json
+
+{
+  "username": "ab"
+}
+
+
+### UPDATE user - should fail validation (invalid email)
+PUT http://localhost:5000/users/6a05e3bd8a419f9f043ad814
+Content-Type: application/json
+
+{
+  "email": "notanemail"
+}
+
+
+### UPDATE password - should fail (wrong old password)
+PUT http://localhost:5000/users/6a05e3bd8a419f9f043ad814/password
+Content-Type: application/json
+
+{
+  "oldPassword": "wrongpassword",
+  "newPassword": "NewPassword1"
+}
+
+### UPDATE password - should succeed
+PUT http://localhost:5000/users/6a0cc7d7b757fb26b1f9ae08/password
+Content-Type: application/json
+
+{
+  "oldPassword": "Password1",
+  "newPassword": "NewPassword1"
+}
+
+
+### UPDATE password back to original
+PUT http://localhost:5000/users/6a0cc7d7b757fb26b1f9ae08/password
+Content-Type: application/json
+
+{
+  "oldPassword": "NewPassword1",
+  "newPassword": "Password1"
+}
+
+
+### DELETE user - should fail (wrong id)
+DELETE http://localhost:5000/users/507f1f77bcf86cd799439012
+
+
+### DELETE user - should succeed
+DELETE http://localhost:5000/users/6a05e3bd8a419f9f043ad814
