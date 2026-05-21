@@ -6,10 +6,12 @@ import userRoutes from "./src/Routes/User.routes.js";
 import matchRoutes from "./src/Routes/Match.routes.js";
 import commentRoutes from "./src/Routes/Comment.routes.js";
 import tournamentRoutes from "./src/Routes/Tournament.routes.js";
+import { rateLimiter } from "./src/Middleware/RateLimiter.js";
 import cors from "cors";
 
 const app = express();
 
+//middleware
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
@@ -19,6 +21,7 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
+app.use(rateLimiter);
 
 //Routes
 app.use("/auth", authRoutes);

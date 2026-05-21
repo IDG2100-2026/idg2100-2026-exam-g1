@@ -130,6 +130,24 @@ export const joinMatch = async (req, res, next) => {
   //push players to match
   match.players.push({ user: req.user._id, points: match.buyIn });
   await match.save();
+
+  const io = req.app.get("io");
+
+  io.to(match._id.toString()).emit("playerJoined", {
+    userId: req.user._id,
+    playerCount: match.players.length,
+  });
+
+  //Start game if enough players joined
+  if (match.players.length === match.maxPlayers) {
+    io.to(match._id.toString()).emit("gameStart", {
+      matchId: match._id,
+      players: match.players,
+    });
+    //update match status in DB
+    match.status = "ongoing";
+    await match.save();
+  }
   res.status(200).json(match);
 };
 
@@ -158,6 +176,12 @@ export const leaveMatch = async (req, res, next) => {
   match.players = match.players.filter(
     (p) => p.user.toString() !== req.user._id.toString(),
   );
+
+  const io = req.app.get("io");
+  io.to(match._id.toString()).emit("playerLeft", {
+    userId: req.user._id,
+    playerCount: match.players.length,
+  });
   await match.save();
   res.status(200).json({ message: "Left match successfully" });
 };

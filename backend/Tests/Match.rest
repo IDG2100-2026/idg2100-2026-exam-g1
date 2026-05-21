@@ -47,7 +47,7 @@ Content-Type: application/json
 
 
 ### JOIN match - should succeed (use match id from above)
-POST http://localhost:5000/matches/6a0cc458bf95e118cdec5701/join
+POST http://localhost:5000/matches/6a0cc5addba722141844da11/join
 
 
 ### DELETE match - should succeed

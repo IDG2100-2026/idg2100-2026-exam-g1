@@ -2,8 +2,11 @@ import "dotenv/config";
 import connectDB from "./src/Config/Database.js";
 import app from "./app.js";
 import { createServer } from "http";
+import initWebSocket from "./src/websocket/index.js";
 
 const server = createServer(app);
+const io = initWebSocket(server);
+app.set("io", io);
 
 const startServer = async () => {
   try {

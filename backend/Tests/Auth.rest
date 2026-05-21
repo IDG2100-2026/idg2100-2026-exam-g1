@@ -13,8 +13,8 @@ POST http://localhost:5000/auth/register
 Content-Type: application/json
 
 {
-  "username": "emailtest",
-  "email": "test@test.com",
+  "username": "emailtest123",
+  "email": "test123@test.com",
   "password": "Password1"
 }
 ### LOGIN - should fail (wrong password)
@@ -27,14 +27,14 @@ Content-Type: application/json
 }
 
 ### VERIFY - use the code from the email
-GET http://localhost:5000/auth/verify/2483
+GET http://localhost:5000/auth/verify/5023
 
 ### LOGIN - should fail (not verified yet)
 POST http://localhost:5000/auth/login
 Content-Type: application/json
 
 {
-  "login": "emailtest",
+  "login": "emailtest123",
   "password": "Password1"
 }
 
@@ -43,7 +43,7 @@ POST http://localhost:5000/auth/login
 Content-Type: application/json
 
 {
-  "login": "testuser2",
+  "login": "emailtest",
   "password": "Password1"
 }
 
