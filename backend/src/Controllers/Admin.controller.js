@@ -1,7 +1,10 @@
 import User from "../Models/User.model.js";
 import Match from "../Models/Match.model.js";
 import AuditLog from "../Models/AuditLog.model.js";
+import Comment from "../Models/Comment.model.js";
 import Tournament from "../Models/Tournament.model.js";
+
+import AppError from "../Utils/AppError.js";
 
 //------------------ADMIN DASHBOARD------------------------
 export const getDashboard = async (req, res, next) => {
@@ -52,6 +55,7 @@ export const getDashboard = async (req, res, next) => {
     allTime: await Match.countDocuments({ status: "finished" }),
   };
 
+  //Tournament overview
   const tournaments = {
     upcoming: await Tournament.countDocuments({ status: "upcoming" }),
     ongoing: await Tournament.countDocuments({ status: "ongoing" }),
@@ -74,4 +78,52 @@ export const getDashboard = async (req, res, next) => {
     availableGames,
     incidents,
   });
+};
+
+//------------------------BAN USER------------------------
+export const banUser = async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(
+    req.params.id,
+    { isBanned: true },
+    { new: true },
+  );
+
+  if (!user) return next(new AppError("User not found", 404));
+  res.status(200).json(user);
+};
+
+//------------------------UNBAN USER------------------------
+export const unbanUser = async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(
+    req.params.id,
+    { isBanned: false },
+    { new: true },
+  );
+  if (!user) return next(new AppError("User not found", 404));
+  res.status(200).json(user);
+};
+
+//------------------------SET USER ROLE------------------------
+export const setRole = async (req, res, next) => {
+  const { role } = req.body;
+  if (!["user", "admin"].includes(role)) {
+    return next(new AppError("Invalid role", 400));
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.params.id,
+    { role },
+    { new: true },
+  );
+  if (!user) return next(new AppError("User not found", 404));
+  res.status(200).json(user);
+};
+
+//------------------------GET RECENT COMMENTS------------------------
+export const getRecentComments = async (req, res, next) => {
+  const comments = await Comment.find()
+    .populate("author", "username")
+    .sort({ createdAt: -1 })
+    .limit(50);
+  res.status(200).json(comments);
 };

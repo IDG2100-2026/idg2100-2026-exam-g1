@@ -1,1 +1,28 @@
+### Dashboard
 GET http://localhost:5000/admin/dashboard
+
+
+### Get all users
+GET http://localhost:5000/users
+
+
+
+### Ban user
+PUT http://localhost:5000/admin/users/6a061b95652f89c028c9f9cf/ban
+
+
+### Unban user
+PUT http://localhost:5000/admin/users/6a061b95652f89c028c9f9cf/unban
+
+
+### Set role to admin
+PUT http://localhost:5000/admin/users/6a061b95652f89c028c9f9cf/role
+Content-Type: application/json
+
+{
+  "role": "admin"
+}
+
+
+### Get recent comments
+GET http://localhost:5000/admin/comments

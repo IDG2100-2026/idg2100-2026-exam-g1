@@ -40,8 +40,14 @@ export const updatePasswordRules = [
 
 //-------------------GET ALL USERS-------------------
 export const getAllUsers = async (req, res, next) => {
-  const users = await User.find();
+  const { search, role, isBanned } = req.query;
+  const filter = {};
 
+  if (search) filter.username = { $regex: search, $options: "i" };
+  if (role) filter.role = role;
+  if (isBanned) filter.isBanned = isBanned === "true";
+
+  const users = await User.find(filter);
   res.status(200).json(users);
 };
 
