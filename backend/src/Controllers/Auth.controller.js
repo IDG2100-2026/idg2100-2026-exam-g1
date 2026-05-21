@@ -230,3 +230,61 @@ export const refresh = async (req, res, next) => {
     return next(new AppError("Invalid refresh token, please login again", 401));
   }
 };
+
+//------------------FORGOT PASSWORD------------------
+export const forgotPassword = async (req, res, next) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res
+      .status(200)
+      .json({ message: "If the email exists you will recieve a reset code" });
+  }
+
+  //Generate code
+  const resetCode = generateVerificationCode();
+  const resetExpiry = new Date(Date.now() + 3600000); //1 hour
+
+  user.resetPasswordCode = resetCode;
+  user.resetPasswordExpiry = resetExpiry;
+  await user.save();
+
+  //Send email
+  await transporter.sendMail({
+    from: "noreply@spanishdicepoker.com",
+    to: email,
+    subject: "Reset your password",
+    html: `<h2>Spanish Dice Poker - Password Reset</h2>
+    <p> Your reset code is: <strong>${resetCode}</strong></p>
+    <p>This code expires in <strong>1 hour</strong></p>
+    <p>Or click <a href="${process.env.CLIENT_URL}/reset-password/${resetCode}">here</a></p>`,
+  });
+  res
+    .status(200)
+    .json({ message: "If the email exists you will recieve a reset code" });
+};
+
+//------------------RESET PASSWORD------------------
+export const resetPassword = async (req, res, next) => {
+  const { code } = req.params;
+  const { password } = req.body;
+
+  //find user
+  const user = await User.findOne({
+    resetPasswordCode: code,
+    resetPasswordExpiry: { $gt: new Date() },
+  }).select("+resetPasswordCode +resetPasswordExpiry");
+
+  if (!user) return next(new AppError("Invalid or expired reset code", 400));
+
+  //Hash and save new password
+  user.password = await bcrypt.hash(password, 10);
+  user.resetPasswordCode = undefined;
+  user.resetPasswordExpiry = undefined;
+  await user.save();
+
+  res
+    .status(200)
+    .json({ message: "Password reset successfully. You can now login" });
+};

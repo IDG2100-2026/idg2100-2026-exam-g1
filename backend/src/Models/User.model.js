@@ -41,6 +41,16 @@ const userSchema = new Schema(
       select: false,
     },
 
+    resetPasswordCode: {
+      type: String,
+      select: false,
+    },
+
+    resetPasswordExpiry: {
+      type: Date,
+      select: false,
+    },
+
     bio: {
       type: String,
       maxLength: 500,

@@ -86,6 +86,28 @@ Content-Type: application/json
   "email": "resend@test.com"
 }
 
-###
-GET http://localhost:5000/users
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2YTBlMzgzNjM1YTFmNGI1OTE4YmY3NzAiLCJyb2xlIjoidXNlciIsImlwIjoiMS4yLjMuNCIsImlhdCI6MTc3OTM4MTE1OSwiZXhwIjoxNzc5OTg1OTU5fQ.lmjCz9aHpsARiXXMf44GVcoMCoSLrIr-2Gr6bRfuuhE
+### FORGOT PASSWORD - should send email
+POST http://localhost:5000/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "test123@test.com"
+}
+
+
+### RESET PASSWORD - get code from mail
+POST http://localhost:5000/auth/reset-password/7204
+Content-Type: application/json
+
+{
+  "password": "NewPassword1"
+}
+
+### RESET PASSWORD - wrong code
+POST http://localhost:5000/auth/reset-password/9999
+Content-Type: application/json
+
+{
+  "password": "NewPassword1"
+}
+

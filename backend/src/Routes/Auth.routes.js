@@ -21,5 +21,9 @@ router.post("/refresh", authController.refresh);
 router.get("/verify/:code", authController.verifyEmail);
 //Resend verification email
 router.post("/resend-verification", authController.resendVerification);
+//Forgot password
+router.post("/forgot-password", authController.forgotPassword);
+//Reset password
+router.post("/reset-password/:code", authController.resetPassword);
 
 export default router;
