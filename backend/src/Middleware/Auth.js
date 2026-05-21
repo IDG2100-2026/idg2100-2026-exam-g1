@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
 import AppError from "../Utils/AppError.js";
+import AuditLog from "../Models/AuditLog.model.js";
 
-const auth = (req, res, next) => {
+const auth = async (req, res, next) => {
   //Check for SKIP_AUTH in .env and attach fake user if true
   if (process.env.SKIP_AUTH === "true") {
     req.user = { _id: "6a0cc7d7b757fb26b1f9ae08", role: "admin" };
@@ -21,7 +22,17 @@ const auth = (req, res, next) => {
   try {
     //Verify token with secret
     const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-
+    //Check ip match
+    if (decoded.ip && decoded.ip !== req.ip) {
+      //Log incident
+      await AuditLog.create({
+        type: "ip_change",
+        ip: req.ip,
+        userAgent: req.headers["user-agent"],
+        userId: decoded._id,
+      });
+      return next(new AppError("Session invalid", 401));
+    }
     //Attach to request
     req.user = decoded;
 

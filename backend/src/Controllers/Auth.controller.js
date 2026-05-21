@@ -181,7 +181,11 @@ export const login = async (req, res, next) => {
   }
 
   //Generate tokens
-  const { accessToken, refreshToken } = generateTokens(user._id, user.role);
+  const { accessToken, refreshToken } = generateTokens(
+    user._id,
+    user.role,
+    req.ip,
+  );
 
   //Send refresh token as httpOnly cookie
   res.cookie("refreshToken", refreshToken, {
@@ -219,7 +223,7 @@ export const refresh = async (req, res, next) => {
     if (!user) return next(new AppError("User not found", 401));
 
     //Generate new acess token
-    const { accessToken } = generateTokens(user._id, user.role);
+    const { accessToken } = generateTokens(user._id, user.role, req.ip);
 
     res.status(200).json({ accessToken });
   } catch (err) {

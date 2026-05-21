@@ -3,10 +3,10 @@ import { TOKEN_EXPIRY } from "../Config/Constants.js";
 import crypto from "crypto";
 
 //--------------JWT TOKENS--------------
-const generateTokens = (userId, role) => {
+const generateTokens = (userId, role, ip) => {
   //Access token
   const accessToken = jwt.sign(
-    { _id: userId, role: role },
+    { _id: userId, role: role, ip: ip },
     process.env.JWT_ACCESS_SECRET,
     { expiresIn: TOKEN_EXPIRY.ACCESS },
   );

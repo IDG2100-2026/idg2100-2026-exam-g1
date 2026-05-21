@@ -85,3 +85,7 @@ Content-Type: application/json
 {
   "email": "resend@test.com"
 }
+
+###
+GET http://localhost:5000/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2YTBlMzgzNjM1YTFmNGI1OTE4YmY3NzAiLCJyb2xlIjoidXNlciIsImlwIjoiMS4yLjMuNCIsImlhdCI6MTc3OTM4MTE1OSwiZXhwIjoxNzc5OTg1OTU5fQ.lmjCz9aHpsARiXXMf44GVcoMCoSLrIr-2Gr6bRfuuhE
