@@ -6,6 +6,7 @@ import userRoutes from "./src/Routes/User.routes.js";
 import matchRoutes from "./src/Routes/Match.routes.js";
 import commentRoutes from "./src/Routes/Comment.routes.js";
 import tournamentRoutes from "./src/Routes/Tournament.routes.js";
+import adminRoutes from "./src/Routes/Admin.routes.js";
 import { rateLimiter } from "./src/Middleware/RateLimiter.js";
 import cors from "cors";
 
@@ -29,6 +30,7 @@ app.use("/users", userRoutes);
 app.use("/matches", matchRoutes);
 app.use("/comments", commentRoutes);
 app.use("/tournaments", tournamentRoutes);
+app.use("/admin", adminRoutes);
 
 //Catch any route that don't exist
 app.use((req, res, next) => {
