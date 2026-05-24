@@ -31,10 +31,9 @@ export default function LoginPage() {
     setForgotMsg('')
     setLoading(true)
     try {
-      const res = await loginApi({ email, password })
-      // Store user in AuthContext, then restore any saved appearance settings from the backend
-      login(res.data, null)
-      if (res.data.appearance) loadFromBackend(res.data.appearance)
+      const { accessToken, user } = await loginApi({ login: email, password })
+      login(user ?? null, accessToken)
+      if (user?.appearance) loadFromBackend(user.appearance)
       navigate('/')
     } catch (err) {
       const msg = err.response?.data?.errors?.[0]

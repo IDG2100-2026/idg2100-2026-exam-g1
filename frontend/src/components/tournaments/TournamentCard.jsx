@@ -6,11 +6,11 @@
 
 import { Link } from 'react-router-dom'
 
-// Formats the game variant into a readable string, e.g. "Best of 5 · Straights · 10s"
-function formatVariant(category) {
-  if (!category) return 'Unknown variant'
-  const straights = category.straightsAllowed ? 'Straights' : 'No straights'
-  return `Best of ${category.rounds} · ${straights} · ${category.timePerRound}s`
+// Formats tournament variant into a readable string, e.g. "Straights · 10s"
+function formatVariant(tournament) {
+  if (!tournament) return 'Unknown variant'
+  const straights = tournament.variant === 'straights' ? 'Straights' : 'No straights'
+  return `${tournament.totalRounds} rounds · ${straights} · ${tournament.timeControl}s`
 }
 
 // Formats an ISO date string into a short human-readable date and time
@@ -29,10 +29,10 @@ export default function TournamentCard({ tournament }) {
       <div className="card" style={styles.card}>
         <p style={styles.title}>{tournament.title}</p>
         <p style={styles.meta}>{formatDate(tournament.startDate)}</p>
-        <p style={styles.meta}>{formatVariant(tournament.category)}</p>
+        <p style={styles.meta}>{formatVariant(tournament)}</p>
         {/* Show how many players have signed up for this tournament */}
         <p style={styles.players}>
-          {tournament.participants?.length ?? 0} player{tournament.participants?.length !== 1 ? 's' : ''} signed up
+          {tournament.players?.length ?? 0} player{tournament.players?.length !== 1 ? 's' : ''} signed up
         </p>
       </div>
     </Link>

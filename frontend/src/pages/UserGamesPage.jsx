@@ -8,14 +8,15 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getUserGames, getProfile } from '../api/users'
+import { getProfile } from '../api/users'
+import { listGames } from '../api/games'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 import ErrorMessage from '../components/ui/ErrorMessage'
 
-function formatVariant(category) {
-  if (!category) return '—'
-  const straights = category.straightsAllowed ? 'Straights' : 'No straights'
-  return `Best of ${category.rounds} · ${straights} · ${category.timePerRound}s`
+function formatVariant(game) {
+  if (!game) return '—'
+  const straights = game.variant === 'straights' ? 'Straights' : 'No straights'
+  return `Best of ${game.rounds} · ${straights} · ${game.timeControl}s`
 }
 
 function formatDate(dateStr) {
@@ -37,7 +38,7 @@ export default function UserGamesPage() {
 
   // Fetch the username separately so the page heading shows a name, not just an ID
   useEffect(() => {
-    getProfile(id).then(res => setUsername(res.data.username)).catch(() => {})
+    getProfile(id).then(res => setUsername(res.username)).catch(() => {})
   }, [id])
 
   useEffect(() => {
@@ -45,9 +46,9 @@ export default function UserGamesPage() {
       setLoading(true)
       setError('')
       try {
-        const res = await getUserGames(id, { page, limit: 20 })
-        setGames(res.data ?? [])
-        setPagination(res.pagination)
+        const res = await listGames({ userId: id, page, limit: 20 })
+        setGames(res ?? [])
+        setPagination(null)
       } catch {
         setError('Failed to load games.')
       } finally {
@@ -84,9 +85,9 @@ export default function UserGamesPage() {
                   <span style={{ ...styles.result, color: g.status === 'completed' ? (won ? 'var(--success)' : 'var(--error)') : 'var(--text-muted)' }}>
                     {g.status === 'completed' ? (won ? 'Win' : 'Loss') : g.status}
                   </span>
-                  <span style={styles.variant}>{formatVariant(g.category)}</span>
+                  <span style={styles.variant}>{formatVariant(g)}</span>
                   <span style={styles.players}>
-                    {g.players?.map(p => p.user?.username || p.displayName || 'Guest').join(' vs ')}
+                    {g.players?.map(p => p.user?.username || 'Guest').join(' vs ')}
                   </span>
                   <span style={styles.date}>{formatDate(g.createdAt)}</span>
                 </Link>

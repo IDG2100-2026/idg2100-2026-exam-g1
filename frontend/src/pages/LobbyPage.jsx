@@ -8,9 +8,9 @@
 // - Array.prototype.filter: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
 
 import { useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { listGames, getQueueStatus } from '../api/games'
+import { listGames } from '../api/games'
 import GameCard from '../components/games/GameCard'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 import ErrorMessage from '../components/ui/ErrorMessage'
@@ -20,7 +20,7 @@ const ELO_RANGE = 300
 
 // Returns average ELO for a game's players, or null if no ELO data exists
 function avgElo(players) {
-  const elos = players?.map(p => p.user?.elo).filter(e => typeof e === 'number') ?? []
+  const elos = players?.map(p => p.user?.elo?.medium).filter(e => typeof e === 'number') ?? []
   if (elos.length === 0) return null
   return elos.reduce((a, b) => a + b, 0) / elos.length
 }
@@ -29,26 +29,22 @@ function avgElo(players) {
 // Polls every 15 s and shows a queue banner if the user is waiting for a match.
 export default function LobbyPage() {
   const { isLoggedIn, currentUser } = useAuth()
-  const location = useLocation()
-  const navigate = useNavigate()
 
   const [games, setGames] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [inQueue, setInQueue] = useState(location.state?.queued ?? false)
-  const [waitSeconds, setWaitSeconds] = useState(0)
 
   async function fetchGames() {
     try {
       const res = await listGames({ status: 'waiting', limit: 50 })
       const all = res.data ?? []
 
-      // Guests only see anonymous games; logged-in users see games within ELO range
+      // Logged-in users see games within ELO range; guests see all waiting games
       const filtered = all.filter(g => {
-        if (!isLoggedIn) return g.isAnonymousGame
+        if (!isLoggedIn) return true
         const gameAvg = avgElo(g.players)
-        if (gameAvg !== null && currentUser?.elo) {
-          return Math.abs(gameAvg - currentUser.elo) <= ELO_RANGE
+        if (gameAvg !== null && currentUser?.elo?.medium) {
+          return Math.abs(gameAvg - currentUser.elo.medium) <= ELO_RANGE
         }
         return true
       })
@@ -62,34 +58,12 @@ export default function LobbyPage() {
     }
   }
 
-  // Checks if the user is still in the matchmaking queue and updates the wait timer
-  async function checkQueue() {
-    if (!inQueue) return
-    try {
-      const res = await getQueueStatus()
-      if (!res.inQueue) {
-        setInQueue(false)
-        return
-      }
-      setWaitSeconds(res.waitSeconds ?? 0)
-    } catch {
-      // non-critical
-    }
-  }
-
   useEffect(() => {
     fetchGames()
     // Source: https://developer.mozilla.org/en-US/docs/Web/API/setInterval
-    const interval = setInterval(() => {
-      fetchGames()
-      checkQueue()
-    }, 15000)
+    const interval = setInterval(fetchGames, 15000)
     return () => clearInterval(interval)
-  }, [isLoggedIn, currentUser?.elo])
-
-  useEffect(() => {
-    if (inQueue) checkQueue()
-  }, [inQueue])
+  }, [isLoggedIn, currentUser?.elo?.medium])
 
   return (
     <div className="container">
@@ -101,23 +75,7 @@ export default function LobbyPage() {
         <Link to="/create-game" className="btn btn-primary">Create a Game</Link>
       </div>
 
-      {inQueue && (
-        <div style={styles.queueBanner}>
-          <div style={styles.queueText}>
-            <strong>You're in the queue!</strong> Waiting for an opponent to join...
-            {waitSeconds > 0 && <span style={styles.waitTime}> ({waitSeconds}s)</span>}
-          </div>
-          <button
-            className="btn btn-secondary"
-            style={{ fontSize: '0.8rem', padding: '0.3rem 0.65rem' }}
-            onClick={() => { setInQueue(false); navigate('/lobby', { replace: true, state: {} }) }}
-          >
-            Leave queue
-          </button>
-        </div>
-      )}
-
-      {loading && <LoadingSpinner message="Loading lobby..." />}
+{loading && <LoadingSpinner message="Loading lobby..." />}
       <ErrorMessage message={error} />
 
       {!loading && !error && games.length === 0 && (
@@ -162,25 +120,5 @@ const styles = {
   emptySub: {
     fontSize: '0.875rem',
     marginTop: '0.5rem',
-  },
-  queueBanner: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: '1rem',
-    background: 'var(--accent-light)',
-    border: '1px solid var(--accent)',
-    borderRadius: 'var(--radius)',
-    padding: '0.75rem 1rem',
-    marginBottom: '1.5rem',
-    flexWrap: 'wrap',
-  },
-  queueText: {
-    fontSize: '0.9rem',
-    color: 'var(--accent)',
-  },
-  waitTime: {
-    color: 'var(--text-muted)',
-    fontSize: '0.85rem',
   },
 }

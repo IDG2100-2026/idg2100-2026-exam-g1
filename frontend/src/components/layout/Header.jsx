@@ -115,9 +115,9 @@ export default function Header() {
   }
 
   // Profile picture: show uploaded image if available, otherwise a letter avatar
-  const avatarEl = currentUser?.profileImage ? (
+  const avatarEl = currentUser?.profilePicture ? (
     <img
-      src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/uploads/${currentUser.profileImage}`}
+      src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}${currentUser.profilePicture}`}
       alt={currentUser.username}
       style={{ width: 30, height: 30, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
     />

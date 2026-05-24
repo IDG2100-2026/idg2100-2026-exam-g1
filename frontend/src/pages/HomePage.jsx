@@ -18,7 +18,7 @@ import ErrorMessage from '../components/ui/ErrorMessage'
 
 // Computes the average ELO of all players in a game, used to rank top games
 function averageElo(players) {
-  const elos = players?.map(p => p.user?.elo).filter(e => typeof e === 'number') ?? []
+  const elos = players?.map(p => p.user?.elo?.medium).filter(e => typeof e === 'number') ?? []
   if (elos.length === 0) return 0
   return elos.reduce((a, b) => a + b, 0) / elos.length
 }

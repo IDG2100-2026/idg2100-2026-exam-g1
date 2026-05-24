@@ -11,15 +11,15 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { getProfile, updateProfile, uploadAvatar } from '../api/users'
+import { getProfile, updateProfile, uploadAvatar, updatePassword } from '../api/users'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 import ErrorMessage from '../components/ui/ErrorMessage'
 
 // Formats variant settings into a short readable string
-function formatVariant(category) {
-  if (!category) return '—'
-  const straights = category.straightsAllowed ? 'Straights' : 'No straights'
-  return `Best of ${category.rounds} · ${straights} · ${category.timePerRound}s`
+function formatVariant(game) {
+  if (!game) return '—'
+  const straights = game.variant === 'straights' ? 'Straights' : 'No straights'
+  return `Best of ${game.rounds} · ${straights} · ${game.timeControl}s`
 }
 
 function formatDate(dateStr) {
@@ -63,7 +63,7 @@ export default function UserProfilePage() {
   const [avatarError, setAvatarError] = useState('')
 
   // Password change
-  const [pwForm, setPwForm]     = useState({ password: '', confirm: '' })
+  const [pwForm, setPwForm]     = useState({ oldPassword: '', password: '', confirm: '' })
   const [pwSaving, setPwSaving] = useState(false)
   const [pwError, setPwError]   = useState('')
   const [pwSuccess, setPwSuccess] = useState('')
@@ -74,8 +74,8 @@ export default function UserProfilePage() {
       setError('')
       try {
         const res = await getProfile(id)
-        setProfile(res.data)
-        setAboutText(res.data.aboutMe ?? '')
+        setProfile(res)
+        setAboutText(res.bio ?? '')
       } catch {
         setError('Failed to load profile.')
       } finally {
@@ -93,8 +93,8 @@ export default function UserProfilePage() {
     setAvatarError('')
     try {
       const res = await uploadAvatar(id, file)
-      setProfile(prev => ({ ...prev, profileImage: res.data.profileImage }))
-      if (isOwner) updateUser({ profileImage: res.data.profileImage })
+      setProfile(prev => ({ ...prev, profilePicture: res.profilePicture }))
+      if (isOwner) updateUser({ profilePicture: res.profilePicture })
     } catch {
       setAvatarError('Failed to upload image.')
     } finally {
@@ -106,9 +106,9 @@ export default function UserProfilePage() {
     setAboutSaving(true)
     setAboutError('')
     try {
-      const res = await updateProfile(id, { aboutMe: aboutText })
-      setProfile(prev => ({ ...prev, aboutMe: res.data.aboutMe }))
-      if (isOwner) updateUser({ aboutMe: res.data.aboutMe })
+      const res = await updateProfile(id, { bio: aboutText })
+      setProfile(prev => ({ ...prev, bio: res.bio }))
+      if (isOwner) updateUser({ bio: res.bio })
       setAboutEdit(false)
     } catch (err) {
       setAboutError(err.response?.data?.message ?? 'Failed to save.')
@@ -125,9 +125,9 @@ export default function UserProfilePage() {
     if (pwForm.password.length < 6) return setPwError('Password must be at least 6 characters.')
     setPwSaving(true)
     try {
-      await updateProfile(id, { password: pwForm.password })
+      await updatePassword(id, { oldPassword: pwForm.oldPassword, newPassword: pwForm.password })
       setPwSuccess('Password updated successfully.')
-      setPwForm({ password: '', confirm: '' })
+      setPwForm({ oldPassword: '', password: '', confirm: '' })
     } catch (err) {
       setPwError(err.response?.data?.message ?? 'Failed to update password.')
     } finally {
@@ -148,9 +148,9 @@ export default function UserProfilePage() {
       <div className="card" style={styles.profileCard}>
         <div style={styles.avatarRow}>
           <div style={{ position: 'relative', flexShrink: 0 }}>
-            {profile.profileImage ? (
+            {profile.profilePicture ? (
               <img
-                src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}/uploads/${profile.profileImage}`}
+                src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}${profile.profilePicture}`}
                 alt={profile.username}
                 style={styles.avatarImg}
               />
@@ -205,14 +205,14 @@ export default function UserProfilePage() {
                   {aboutSaving ? 'Saving...' : 'Save'}
                 </button>
                 <button className="btn btn-secondary" style={styles.smallBtn}
-                  onClick={() => { setAboutEdit(false); setAboutText(profile.aboutMe ?? '') }}>
+                  onClick={() => { setAboutEdit(false); setAboutText(profile.bio ?? '') }}>
                   Cancel
                 </button>
               </div>
             </div>
           ) : (
             <p style={styles.aboutText}>
-              {profile.aboutMe || <span style={{ color: 'var(--text-muted)' }}>No description yet.</span>}
+              {profile.bio || <span style={{ color: 'var(--text-muted)' }}>No description yet.</span>}
             </p>
           )}
         </div>
@@ -225,21 +225,23 @@ export default function UserProfilePage() {
           <h2 style={styles.sectionTitle}>Stats</h2>
           <div style={styles.statsGrid}>
             <div style={styles.statItem}>
-              <span style={styles.statValue}>{profile.elo}</span>
-              <span style={styles.statLabel}>ELO Rating</span>
+              <span style={styles.statValue}>{profile.elo?.short ?? '—'}</span>
+              <span style={styles.statLabel}>ELO (10s)</span>
             </div>
             <div style={styles.statItem}>
-              <span style={styles.statValue}>
-                {profile.eloWeeklyChange >= 0 ? '+' : ''}{profile.eloWeeklyChange}
-              </span>
-              <span style={styles.statLabel}>ELO this week</span>
+              <span style={styles.statValue}>{profile.elo?.medium ?? '—'}</span>
+              <span style={styles.statLabel}>ELO (30s)</span>
             </div>
             <div style={styles.statItem}>
-              <span style={styles.statValue}>{profile.gamesPlayed}</span>
+              <span style={styles.statValue}>{profile.elo?.long ?? '—'}</span>
+              <span style={styles.statLabel}>ELO (90s)</span>
+            </div>
+            <div style={styles.statItem}>
+              <span style={styles.statValue}>{profile.totalGames ?? '—'}</span>
               <span style={styles.statLabel}>Games played</span>
             </div>
             <div style={styles.statItem}>
-              <span style={styles.statValue}>{profile.gamesWon}</span>
+              <span style={styles.statValue}>{profile.wins ?? '—'}</span>
               <span style={styles.statLabel}>Total wins</span>
             </div>
             <div style={styles.statItem}>
@@ -277,6 +279,18 @@ export default function UserProfilePage() {
             <form onSubmit={savePassword} style={styles.pwForm}>
               <ErrorMessage message={pwError} />
               {pwSuccess && <p style={styles.success}>{pwSuccess}</p>}
+              <div className="form-group">
+                <label htmlFor="pw-old">Current password</label>
+                <input
+                  id="pw-old"
+                  type="password"
+                  value={pwForm.oldPassword}
+                  onChange={e => setPwForm(p => ({ ...p, oldPassword: e.target.value }))}
+                  required
+                  placeholder="Your current password"
+                  autoComplete="current-password"
+                />
+              </div>
               <div className="form-group">
                 <label htmlFor="pw-new">New password</label>
                 <input
@@ -325,7 +339,7 @@ export default function UserProfilePage() {
                   <span style={{ ...styles.gameResult, color: won ? 'var(--success)' : 'var(--error)' }}>
                     {g.status === 'completed' ? (won ? 'Win' : 'Loss') : g.status}
                   </span>
-                  <span style={styles.gameVariant}>{formatVariant(g.category)}</span>
+                  <span style={styles.gameVariant}>{formatVariant(g)}</span>
                   <span style={styles.gamePlayers}>
                     {g.players?.map(p => p.user?.username || p.displayName || 'Guest').join(' vs ')}
                   </span>

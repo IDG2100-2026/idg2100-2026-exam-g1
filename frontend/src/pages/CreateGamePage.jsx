@@ -8,16 +8,18 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { joinQueue } from '../api/games'
+import { createGame } from '../api/games'
 import ErrorMessage from '../components/ui/ErrorMessage'
 
 // Fixed option sets for the three game variant pickers
-const ROUNDS_OPTIONS   = [3, 5, 7]
-const STRAIGHTS_OPTIONS = [
-  { label: 'Allowed',     value: true  },
-  { label: 'Not allowed', value: false },
+const ROUNDS_OPTIONS    = [3, 5, 7]
+const VARIANT_OPTIONS   = [
+  { label: 'Standard',      value: 'standard'  },
+  { label: 'Straights',     value: 'straights' },
 ]
-const TIME_OPTIONS = [3, 10, 30]
+const TIME_OPTIONS      = [10, 30, 90]
+const PLAYERS_OPTIONS   = [2, 3, 5]
+const BUYIN_OPTIONS     = [1, 10, 50]
 
 // Reusable radio-button group that renders options as pill-style toggle buttons
 function RadioGroup({ label, options, value, onChange }) {
@@ -55,10 +57,10 @@ export default function CreateGamePage() {
   const navigate = useNavigate()
 
   const [rounds, setRounds]           = useState(3)
-  const [straights, setStraights]     = useState(true)
-  const [timePerRound, setTimePerRound] = useState(10)
-  const [allowAnon, setAllowAnon]     = useState(false)
-  const [desiredElo, setDesiredElo]   = useState('')
+  const [variant, setVariant]         = useState('standard')
+  const [timeControl, setTimeControl] = useState(10)
+  const [maxPlayers, setMaxPlayers]   = useState(2)
+  const [buyIn, setBuyIn]             = useState(1)
   const [loading, setLoading]         = useState(false)
   const [error, setError]             = useState('')
 
@@ -67,18 +69,9 @@ export default function CreateGamePage() {
     setError('')
     setLoading(true)
     try {
-      const payload = {
-        category: { rounds, straightsAllowed: straights, timePerRound },
-        anonymous: isLoggedIn ? allowAnon : true,
-        ...(desiredElo ? { desiredElo: Number(desiredElo) } : {}),
-      }
-      const res = await joinQueue(payload)
-      if (res.matched && res.data?._id) {
-        navigate(`/games/${res.data._id}`)
-      } else {
-        // No immediate match — go to lobby, game will appear there
-        navigate('/lobby', { state: { queued: true } })
-      }
+      const payload = { rounds, variant, timeControl, maxPlayers, buyIn }
+      const res = await createGame(payload)
+      navigate(`/games/${res._id}`)
     } catch (err) {
       const msg = err.response?.data?.errors?.[0]
         ?? err.response?.data?.message
@@ -109,48 +102,32 @@ export default function CreateGamePage() {
           />
 
           <RadioGroup
-            label="Straights"
-            options={STRAIGHTS_OPTIONS}
-            value={straights}
-            onChange={setStraights}
+            label="Variant"
+            options={VARIANT_OPTIONS}
+            value={variant}
+            onChange={setVariant}
           />
 
           <RadioGroup
-            label="Time per round"
+            label="Time control"
             options={TIME_OPTIONS.map(t => ({ label: `${t}s`, value: t }))}
-            value={timePerRound}
-            onChange={setTimePerRound}
+            value={timeControl}
+            onChange={setTimeControl}
           />
 
-          <div style={styles.divider} />
+          <RadioGroup
+            label="Max players"
+            options={PLAYERS_OPTIONS.map(p => ({ label: `${p}`, value: p }))}
+            value={maxPlayers}
+            onChange={setMaxPlayers}
+          />
 
-          {isLoggedIn && (
-            <label style={styles.toggleLabel}>
-              <input
-                type="checkbox"
-                checked={allowAnon}
-                onChange={e => setAllowAnon(e.target.checked)}
-                style={styles.checkbox}
-              />
-              Allow anonymous players to join
-            </label>
-          )}
-
-          <div className="form-group" style={{ maxWidth: 220 }}>
-            <label htmlFor="desiredElo">
-              Desired opponent ELO{' '}
-              <span style={styles.optional}>(optional)</span>
-            </label>
-            <input
-              id="desiredElo"
-              type="number"
-              min={0}
-              max={3000}
-              value={desiredElo}
-              onChange={e => setDesiredElo(e.target.value)}
-              placeholder="e.g. 1200"
-            />
-          </div>
+          <RadioGroup
+            label="Buy-in (points)"
+            options={BUYIN_OPTIONS.map(b => ({ label: `${b}`, value: b }))}
+            value={buyIn}
+            onChange={setBuyIn}
+          />
 
           <div style={styles.actions}>
             <Link to="/lobby" className="btn btn-secondary">Cancel</Link>

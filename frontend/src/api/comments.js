@@ -4,7 +4,7 @@
 
 import axiosInstance from './axiosInstance'
 
-// Fetch comments for a game or tournament. targetType is 'game' or 'tournament'.
+// Fetch comments for a match or tournament. targetType is 'match' or 'tournament'.
 export async function getComments(targetType, targetId) {
   const res = await axiosInstance.get('/comments', { params: { targetType, targetId } })
   return res.data

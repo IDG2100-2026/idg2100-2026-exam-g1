@@ -9,22 +9,14 @@ import axios from 'axios'
 // Shared axios instance — all API calls go through this so the base URL is set in one place.
 // Source: https://axios-http.com/docs/instance
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:5000',
 })
 
-// Attach the logged-in user's ID to every request.
-// The backend uses the X-User-Id header to identify the user.
+// Attach the access token as a Bearer token on every request.
 // Source: https://axios-http.com/docs/interceptors
 axiosInstance.interceptors.request.use((config) => {
-  try {
-    const stored = localStorage.getItem('user')
-    if (stored) {
-      const user = JSON.parse(stored)
-      if (user?._id) config.headers['X-User-Id'] = user._id
-    }
-  } catch {
-    // ignore malformed localStorage
-  }
+  const token = localStorage.getItem('token')
+  if (token) config.headers['Authorization'] = `Bearer ${token}`
   return config
 })
 

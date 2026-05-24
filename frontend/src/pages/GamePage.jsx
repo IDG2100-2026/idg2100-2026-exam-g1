@@ -18,10 +18,10 @@ import LoadingSpinner from '../components/ui/LoadingSpinner'
 import ErrorMessage from '../components/ui/ErrorMessage'
 
 // Formats the game variant into a short readable string, e.g. "Best of 5 · Straights · 10s"
-function formatVariant(category) {
-  if (!category) return ''
-  const straights = category.straightsAllowed ? 'Straights' : 'No straights'
-  return `Best of ${category.rounds} · ${straights} · ${category.timePerRound}s`
+function formatVariant(game) {
+  if (!game) return ''
+  const straights = game.variant === 'straights' ? 'Straights' : 'No straights'
+  return `Best of ${game.rounds} · ${straights} · ${game.timeControl}s`
 }
 
 function formatDate(dateStr) {
@@ -52,7 +52,7 @@ export default function GamePage() {
   async function fetchGame() {
     try {
       const res = await getGame(id)
-      setGame(res.data)
+      setGame(res)
       setGameError('')
     } catch {
       setGameError('Failed to load game.')
@@ -62,8 +62,8 @@ export default function GamePage() {
   }
 
   async function fetchComments() {
-    const res = await getComments('game', id)
-    setComments(res.data ?? [])
+    const res = await getComments('match', id)
+    setComments(res ?? [])
   }
 
   useEffect(() => {
@@ -92,10 +92,10 @@ export default function GamePage() {
     setPosting(true)
     setCommentError('')
     try {
-      const res = await createComment({ content: commentText.trim(), targetType: 'game', targetId: id })
+      const res = await createComment({ content: commentText.trim(), targetType: 'match', targetId: id })
       setCommentText('')
       // Add the new comment immediately so it appears without waiting for a GET refresh
-      if (res.data) setComments(prev => [...prev, res.data])
+      if (res) setComments(prev => [...prev, res])
       // Also refresh in the background to get any other new comments
       fetchComments().catch(() => {})
     } catch (err) {
@@ -121,9 +121,9 @@ export default function GamePage() {
       <div style={styles.main}>
         <div style={styles.meta}>
           <h1 style={styles.title}>
-            {game.players?.map(p => p.displayName || p.user?.username || 'Guest').join(' vs ')}
+            {game.players?.map(p => p.user?.username || 'Guest').join(' vs ')}
           </h1>
-          <p style={styles.variant}>{formatVariant(game.category)}</p>
+          <p style={styles.variant}>{formatVariant(game)}</p>
         </div>
 
         {/* Player ELO bar */}
@@ -131,10 +131,10 @@ export default function GamePage() {
           {game.players?.map((p, i) => (
             <div key={i} style={styles.playerChip}>
               <span style={styles.playerName}>
-                {p.displayName || p.user?.username || 'Guest'}
+                {p.user?.username || 'Guest'}
               </span>
-              {p.user?.elo && (
-                <span style={styles.playerElo}>ELO {p.user.elo}</span>
+              {p.user?.elo?.medium && (
+                <span style={styles.playerElo}>ELO {p.user.elo.medium}</span>
               )}
             </div>
           ))}
