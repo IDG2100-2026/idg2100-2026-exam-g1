@@ -30,5 +30,6 @@ router.put(
   userController.updatePassword,
 );
 router.delete("/:id", auth, userController.deleteUser); //Delete user
+router.get("/:id/games", userController.getUserGames);
 
 export default router;

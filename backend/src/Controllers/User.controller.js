@@ -2,6 +2,7 @@ import User from "../Models/User.model.js";
 import AppError from "../Utils/AppError.js";
 import { body } from "express-validator";
 import bcrypt from "bcrypt";
+import Match from "../Models/Match.model.js";
 
 //------------------UPDATE USER RULES-------------------
 export const updateUserRules = [
@@ -124,4 +125,35 @@ export const deleteUser = async (req, res, next) => {
   const user = await User.findByIdAndDelete(req.params.id);
   if (!user) return next(new AppError("User not found", 404));
   res.status(200).json({ message: "User deleted" });
+};
+
+//-------------------GET USER GAMES-------------------
+export const getUserGames = async (req, res, next) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const filter = { "players.user": req.params.id };
+
+  const total = await Match.countDocuments(filter);
+  const results = {};
+
+  //Add next object if its not the last page
+  if (skip + limit < total) {
+    results.next = { page: page + 1, limit };
+  }
+
+  //Adds previous object if its not the first page
+  if (skip > 0) {
+    results.previous = { page: page - 1, limit };
+  }
+
+  results.results = await Match.find(filter)
+    .populate("players.user", "username elo profilePicture")
+    .populate("owner", "username")
+    .skip(skip)
+    .limit(limit)
+    .sort({ createdAt: -1 });
+
+  res.status(200).json(results);
 };

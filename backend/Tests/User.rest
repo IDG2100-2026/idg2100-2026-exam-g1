@@ -69,3 +69,7 @@ DELETE http://localhost:5000/users/507f1f77bcf86cd799439012
 
 ### DELETE user - should succeed
 DELETE http://localhost:5000/users/6a05e3bd8a419f9f043ad814
+
+
+### GET user games 
+GET http://localhost:5000/users/6a0d1ad7b79dca3746cc5482/games

@@ -59,13 +59,18 @@ export const getAllMatches = async (req, res, next) => {
   if (skip > 0) {
     results.previous = { page: page - 1, limit };
   }
-  results.results = await Match.find(filter).skip(skip).limit(limit);
+  results.results = await Match.find(filter)
+    .skip(skip)
+    .limit(limit)
+    .populate("players.user", "username elo profilePicture");
   res.status(200).json(results);
 };
 
 //----------------GET ONE MATCH----------------
 export const getMatch = async (req, res, next) => {
-  const match = await Match.findById(req.params.id);
+  const match = await Match.findById(req.params.id)
+    .populate("players.user", "username elo profilePicture")
+    .populate("owner", "username");
   if (!match) return next(new AppError("Match not found", 404));
   res.status(200).json(match);
 };
@@ -92,6 +97,8 @@ export const createMatch = async (req, res, next) => {
     owner: req.user._id,
     players: [{ user: req.user._id, points: req.body.buyIn }],
   });
+  await match.populate("players.user", "username elo profilePicture");
+  await match.populate("owner", "username");
   res.status(201).json(match);
 };
 

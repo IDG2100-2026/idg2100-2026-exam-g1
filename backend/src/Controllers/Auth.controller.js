@@ -194,7 +194,24 @@ export const login = async (req, res, next) => {
     maxAge: TOKEN_EXPIRY.REFRESH_MS,
   });
 
-  res.status(200).json({ accessToken });
+  res.status(200).json({
+    accessToken,
+    user: {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      profilePicture: user.profilePicture,
+      bio: user.bio,
+      elo: user.elo,
+      points: user.points,
+      totalGames: user.totalGames,
+      wins: user.wins,
+      losses: user.losses,
+      verifiedEmail: user.verifiedEmail,
+      isBanned: user.isBanned,
+    },
+  });
 };
 
 //------------------LOGOUT--------------------

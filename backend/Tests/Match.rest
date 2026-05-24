@@ -47,7 +47,7 @@ Content-Type: application/json
 
 
 ### JOIN match - should succeed (use match id from above)
-POST http://localhost:5000/matches/6a0cc5addba722141844da11/join
+POST http://localhost:5000/matches/6a1320fa3ff778932245f410/join
 
 
 ### DELETE match - should succeed
@@ -64,3 +64,4 @@ GET http://localhost:5000/matches?page=2&limit=2
 
 ### GET matches filter by variant
 GET http://localhost:5000/matches?variant=straights
+
