@@ -27,7 +27,7 @@ Content-Type: application/json
 }
 
 ### VERIFY - use the code from the email
-GET http://localhost:5000/auth/verify/9353
+GET http://localhost:5000/auth/verify/3551
 
 ### LOGIN - should fail (not verified yet)
 POST http://localhost:5000/auth/login

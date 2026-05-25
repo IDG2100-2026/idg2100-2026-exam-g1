@@ -12,7 +12,12 @@ router.post(
   authController.register,
 );
 //Login
-router.post("/login", authController.login);
+router.post(
+  "/login",
+  authController.loginRules,
+  validateRequest,
+  authController.login,
+);
 //Logout
 router.post("/logout", authController.logout);
 //Refresh token
