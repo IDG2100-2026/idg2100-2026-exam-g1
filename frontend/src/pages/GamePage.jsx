@@ -9,10 +9,10 @@
 // - CSS position sticky: https://developer.mozilla.org/en-US/docs/Web/CSS/position
 
 import { useEffect, useState, useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useLocation, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useAppearance } from '../context/AppearanceContext'
-import { getGame } from '../api/games'
+import { getGame, joinGame, leaveGame } from '../api/games'
 import { getComments, createComment } from '../api/comments'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 import ErrorMessage from '../components/ui/ErrorMessage'
@@ -35,6 +35,8 @@ function formatDate(dateStr) {
 // Polls every 15 s so the waiting overlay disappears once a second player joins.
 export default function GamePage() {
   const { id } = useParams()
+  const location = useLocation()
+  const navigate = useNavigate()
   const { currentUser, isLoggedIn } = useAuth()
   const { boardColor } = useAppearance()
 
@@ -42,6 +44,9 @@ export default function GamePage() {
   const [comments, setComments] = useState([])
   const [loadingGame, setLoadingGame] = useState(true)
   const [gameError, setGameError]     = useState('')
+
+  const [actionLoading, setActionLoading] = useState(false)
+  const [actionError, setActionError]     = useState('')
 
   const [commentText, setCommentText] = useState('')
   const [posting, setPosting]         = useState(false)
@@ -66,6 +71,32 @@ export default function GamePage() {
     setComments(res ?? [])
   }
 
+  async function handleJoin() {
+    setActionLoading(true)
+    setActionError('')
+    try {
+      const res = await joinGame(id)
+      setGame(res)
+    } catch (err) {
+      setActionError(err.response?.data?.message ?? 'Failed to join game.')
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  async function handleLeave() {
+    setActionLoading(true)
+    setActionError('')
+    try {
+      await leaveGame(id)
+      navigate('/lobby')
+    } catch (err) {
+      setActionError(err.response?.data?.message ?? 'Failed to leave game.')
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
   useEffect(() => {
     fetchGame()
     fetchComments()
@@ -79,6 +110,16 @@ export default function GamePage() {
 
     return () => clearInterval(interval)
   }, [id])
+
+  // Auto-join if navigated here from the lobby with autoJoin flag
+  useEffect(() => {
+    if (location.state?.autoJoin && game && isLoggedIn) {
+      const alreadyIn = game.players?.some(
+        p => p.user?._id === currentUser?._id || p.user === currentUser?._id
+      )
+      if (!alreadyIn && game.status === 'waiting') handleJoin()
+    }
+  }, [game?._id])
 
   // Scroll comments to bottom when new ones arrive
   // Source: https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
@@ -112,7 +153,11 @@ export default function GamePage() {
   if (gameError)   return <div className="container" style={{ paddingTop: '2rem' }}><ErrorMessage message={gameError} /></div>
   if (!game)       return null
 
-  const isWaiting = game.status === 'waiting'
+  const isWaiting  = game.status === 'waiting'
+  const isInGame   = game.players?.some(
+    p => p.user?._id === currentUser?._id || p.user === currentUser?._id
+  )
+  const isFull     = game.players?.length >= game.maxPlayers
 
   return (
     <div className="container" style={styles.page}>
@@ -124,6 +169,34 @@ export default function GamePage() {
             {game.players?.map(p => p.user?.username || 'Guest').join(' vs ')}
           </h1>
           <p style={styles.variant}>{formatVariant(game)}</p>
+          <p style={styles.variant}>
+            Buy-in: {game.buyIn} pts · {game.players?.length ?? 0}/{game.maxPlayers} players
+          </p>
+
+          {/* Join / leave controls — only shown while game is waiting */}
+          {isWaiting && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
+              {actionError && <p style={{ color: 'var(--error)', fontSize: '0.85rem' }}>{actionError}</p>}
+              {!isLoggedIn && (
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                  <Link to="/login">Log in</Link> to join this game.
+                </p>
+              )}
+              {isLoggedIn && !isInGame && !isFull && (
+                <button className="btn btn-primary" onClick={handleJoin} disabled={actionLoading} style={{ alignSelf: 'flex-start' }}>
+                  {actionLoading ? 'Joining...' : 'Join game'}
+                </button>
+              )}
+              {isLoggedIn && !isInGame && isFull && (
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>This game is full.</p>
+              )}
+              {isLoggedIn && isInGame && (
+                <button className="btn btn-secondary" onClick={handleLeave} disabled={actionLoading} style={{ alignSelf: 'flex-start' }}>
+                  {actionLoading ? 'Leaving...' : 'Leave game'}
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Player ELO bar */}

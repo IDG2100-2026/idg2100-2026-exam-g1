@@ -7,7 +7,7 @@
 // - HTML autocomplete attribute: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete
 
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useAppearance } from '../context/AppearanceContext'
 import { login as loginApi } from '../api/users'
@@ -24,6 +24,7 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [forgotMsg, setForgotMsg] = useState('')
+  const [showResend, setShowResend] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -40,6 +41,7 @@ export default function LoginPage() {
         ?? err.response?.data?.message
         ?? 'Login failed. Please try again.'
       setError(msg)
+      setShowResend(msg.toLowerCase().includes('verify'))
     } finally {
       setLoading(false)
     }
@@ -53,6 +55,11 @@ export default function LoginPage() {
         <h1 style={styles.heading}>Log in</h1>
 
         <ErrorMessage message={error} />
+        {showResend && (
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+            <Link to="/resend-verification">Resend verification email</Link>
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <div className="form-group">

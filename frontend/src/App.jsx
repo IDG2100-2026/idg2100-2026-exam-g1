@@ -19,6 +19,8 @@ import CreateGamePage from './pages/CreateGamePage'
 import GamePage from './pages/GamePage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import VerifyEmailPage from './pages/VerifyEmailPage'
+import ResendVerificationPage from './pages/ResendVerificationPage'
 import UserProfilePage from './pages/UserProfilePage'
 import UserGamesPage from './pages/UserGamesPage'
 import TournamentsPage from './pages/TournamentsPage'
@@ -63,6 +65,8 @@ export default function App() {
             {/* Auth pages — no Header/Footer */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/verify/:code" element={<VerifyEmailPage />} />
+            <Route path="/resend-verification" element={<ResendVerificationPage />} />
           </Routes>
         </AppearanceProvider>
       </AuthProvider>

@@ -121,8 +121,11 @@ export default function UserProfilePage() {
     e.preventDefault()
     setPwError('')
     setPwSuccess('')
+    if (!pwForm.oldPassword) return setPwError('Current password is required.')
     if (pwForm.password !== pwForm.confirm) return setPwError('Passwords do not match.')
     if (pwForm.password.length < 6) return setPwError('Password must be at least 6 characters.')
+    if (!/[0-9]/.test(pwForm.password)) return setPwError('Password must contain at least one number.')
+    if (!/[A-Z]/.test(pwForm.password)) return setPwError('Password must contain at least one uppercase letter.')
     setPwSaving(true)
     try {
       await updatePassword(id, { oldPassword: pwForm.oldPassword, newPassword: pwForm.password })
@@ -300,7 +303,7 @@ export default function UserProfilePage() {
                   onChange={e => setPwForm(p => ({ ...p, password: e.target.value }))}
                   minLength={6}
                   required
-                  placeholder="At least 6 characters"
+                  placeholder="Min 6 chars, one number, one uppercase"
                   autoComplete="new-password"
                 />
               </div>

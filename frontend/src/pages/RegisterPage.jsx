@@ -10,9 +10,7 @@
 
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { useAppearance } from '../context/AppearanceContext'
-import { register as registerApi, login as loginApi } from '../api/users'
+import { register as registerApi } from '../api/users'
 import ErrorMessage from '../components/ui/ErrorMessage'
 
 // Calculates the user's current age from a date-of-birth string
@@ -29,8 +27,6 @@ function calcAge(dob) {
 // Registration form — validates age (18+), matching passwords, and terms agreement,
 // then registers and immediately logs the user in.
 export default function RegisterPage() {
-  const { login } = useAuth()
-  const { loadFromBackend } = useAppearance()
   const navigate = useNavigate()
 
   const [form, setForm] = useState({
@@ -43,6 +39,7 @@ export default function RegisterPage() {
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
 
   // Generic change handler — works for both text inputs and the checkbox
   function handleChange(e) {
@@ -56,6 +53,12 @@ export default function RegisterPage() {
 
     if (form.password !== form.confirmPassword) {
       return setError('Passwords do not match.')
+    }
+    if (form.password.length < 8) {
+      return setError('Password must be at least 8 characters.')
+    }
+    if (!/[0-9]/.test(form.password)) {
+      return setError('Password must contain at least one number.')
     }
     if (!form.dob) {
       return setError('Date of birth is required.')
@@ -75,11 +78,7 @@ export default function RegisterPage() {
         password: form.password,
         age: calcAge(form.dob),
       })
-      // Log in immediately after registration
-      const res = await loginApi({ email: form.email, password: form.password })
-      login(res.data, null)
-      if (res.data.appearance) loadFromBackend(res.data.appearance)
-      navigate('/')
+      setSuccess(true)
     } catch (err) {
       const msg = err.response?.data?.errors?.[0]
         ?? err.response?.data?.message
@@ -88,6 +87,28 @@ export default function RegisterPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (success) {
+    return (
+      <div style={styles.page}>
+        <div className="card" style={styles.card}>
+          <Link to="/" style={styles.backLink}>← Spanish Poker Dice</Link>
+          <h1 style={styles.heading}>Check your email</h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
+            We sent a verification link to <strong>{form.email}</strong>.
+            Click the link in the email to activate your account, then log in.
+          </p>
+          <button className="btn btn-primary" onClick={() => navigate('/login')}>
+            Go to login
+          </button>
+          <p style={styles.footer}>
+            Didn't get the email?{' '}
+            <Link to="/resend-verification">Resend verification</Link>
+          </p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -138,8 +159,8 @@ export default function RegisterPage() {
               value={form.password}
               onChange={handleChange}
               required
-              minLength={6}
-              placeholder="At least 6 characters"
+              minLength={8}
+              placeholder="At least 8 characters, must include a number"
               autoComplete="new-password"
             />
           </div>
