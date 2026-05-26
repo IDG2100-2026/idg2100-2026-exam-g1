@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
+import Comment from "../Models/Comment.model.js";
 
 const initWebSocket = (server) => {
   const io = new Server(server, {
@@ -42,6 +43,31 @@ const initWebSocket = (server) => {
         userId: socket.user._id,
         playerCount,
       });
+    });
+
+    //New comment
+    socket.on("newComment", async (data) => {
+      //validation
+      if (!data.content?.trim()) return;
+      if (!["match", "tournament"].includes(data.targetType)) return;
+      if (!data.targetId) return;
+
+      try {
+        //Save to database
+        const comment = await Comment.create({
+          content: data.content,
+          author: socket.user._id,
+          targetType: data.targetType,
+          targetId: data.targetId,
+        });
+        await comment.populate("author", "username");
+
+        //Broadcast
+        io.to(data.targetId).emit("commentRecieved", comment);
+      } catch (err) {
+        console.error("Comment error:", err);
+        socket.emit("error", { message: "Failed to save comment" });
+      }
     });
 
     socket.on("disconnect", () => {
