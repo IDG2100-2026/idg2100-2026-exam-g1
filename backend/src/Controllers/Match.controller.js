@@ -2,6 +2,7 @@ import Match from "../Models/Match.model.js";
 import AppError from "../Utils/AppError.js";
 import { body } from "express-validator";
 import User from "../Models/User.model.js";
+import { startGame } from "../websocket/gameLogic.js";
 
 //---------------CREATE MATCH RULES----------------
 export const createMatchRules = [
@@ -147,13 +148,7 @@ export const joinMatch = async (req, res, next) => {
 
   //Start game if enough players joined
   if (match.players.length === match.maxPlayers) {
-    io.to(match._id.toString()).emit("gameStart", {
-      matchId: match._id,
-      players: match.players,
-    });
-    //update match status in DB
-    match.status = "ongoing";
-    await match.save();
+    await startGame(match._id.toString(), io);
   }
   res.status(200).json(match);
 };

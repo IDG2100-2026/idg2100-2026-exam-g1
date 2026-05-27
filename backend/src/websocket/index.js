@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import Comment from "../Models/Comment.model.js";
+import { startGame, handleRoll } from "./gameLogic.js";
 
 const initWebSocket = (server) => {
   const io = new Server(server, {
@@ -11,8 +12,6 @@ const initWebSocket = (server) => {
   });
 
   io.use((socket, next) => {
-    console.log("auth:", socket.handshake.auth);
-    console.log("query:", socket.handshake.query);
     const token = socket.handshake.auth.token || socket.handshake.query.token;
 
     if (!token) {
@@ -45,6 +44,11 @@ const initWebSocket = (server) => {
       });
     });
 
+    //Player rolls dice
+    socket.on("rollDice", (data) => {
+      handleRoll(socket, data, io);
+    });
+
     //New comment
     socket.on("newComment", async (data) => {
       //validation
@@ -63,7 +67,7 @@ const initWebSocket = (server) => {
         await comment.populate("author", "username");
 
         //Broadcast
-        io.to(data.targetId).emit("commentRecieved", comment);
+        io.to(data.targetId).emit("commentReceived", comment);
       } catch (err) {
         console.error("Comment error:", err);
         socket.emit("error", { message: "Failed to save comment" });
