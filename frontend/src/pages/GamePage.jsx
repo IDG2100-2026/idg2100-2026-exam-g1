@@ -16,6 +16,7 @@ import { getGame, joinGame, leaveGame } from '../api/games'
 import { getComments, createComment } from '../api/comments'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 import ErrorMessage from '../components/ui/ErrorMessage'
+import GameBoard from '../components/game-board/GameBoard'
 
 // Formats the game variant into a short readable string, e.g. "Best of 5 · Straights · 10s"
 function formatVariant(game) {
@@ -38,7 +39,7 @@ export default function GamePage() {
   const location = useLocation()
   const navigate = useNavigate()
   const { currentUser, isLoggedIn } = useAuth()
-  const { boardColor } = useAppearance()
+  useAppearance() // keeps --board-color CSS variable in sync for the game-board Web Component
 
   const [game, setGame]         = useState(null)
   const [comments, setComments] = useState([])
@@ -213,20 +214,8 @@ export default function GamePage() {
           ))}
         </div>
 
-        {/* Board area */}
-        <div style={{ ...styles.board, background: boardColor, position: 'relative' }}>
-          {isWaiting && (
-            <div style={styles.waitingOverlay}>
-              <p style={styles.waitingTitle}>Waiting for players...</p>
-              <p style={styles.waitingSub}>Page refreshes automatically every 15 seconds</p>
-            </div>
-          )}
-          {!isWaiting && (
-            <p style={styles.boardPlaceholder}>
-              Game board — coming in a future sprint
-            </p>
-          )}
-        </div>
+        {/* Board area — rendered by the <game-board> Web Component */}
+        <GameBoard game={game} currentUser={currentUser} />
       </div>
 
       {/* Comments sidebar */}
@@ -310,39 +299,6 @@ const styles = {
   },
   playerName: { fontWeight: 600, fontSize: '0.95rem' },
   playerElo: { fontSize: '0.8rem', color: 'var(--text-muted)' },
-  board: {
-    width: '100%',
-    minHeight: 360,
-    borderRadius: 'var(--radius-lg)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  waitingOverlay: {
-    position: 'absolute',
-    inset: 0,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: 'rgba(0,0,0,0.55)',
-    borderRadius: 'var(--radius-lg)',
-    gap: '0.5rem',
-  },
-  waitingTitle: {
-    color: '#fff',
-    fontSize: '1.25rem',
-    fontWeight: 600,
-  },
-  waitingSub: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: '0.85rem',
-  },
-  boardPlaceholder: {
-    color: 'rgba(255,255,255,0.5)',
-    fontSize: '0.9rem',
-    fontStyle: 'italic',
-  },
   sidebar: {
     background: 'var(--bg-surface)',
     border: '1px solid var(--border)',
