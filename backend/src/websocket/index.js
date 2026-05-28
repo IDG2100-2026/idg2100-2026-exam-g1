@@ -1,7 +1,7 @@
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import Comment from "../Models/Comment.model.js";
-import { startGame, handleRoll } from "./gameLogic.js";
+import * as gameLogic from "./gameLogic.js";
 
 const initWebSocket = (server) => {
   const io = new Server(server, {
@@ -46,9 +46,22 @@ const initWebSocket = (server) => {
 
     //Player rolls dice
     socket.on("rollDice", (data) => {
-      handleRoll(socket, data, io);
+      gameLogic.handleRoll(socket, data, io);
     });
 
+    //Player is done rolling
+    socket.on("doneRolling", (data) => {
+      gameLogic.handleDoneRolling(socket, data, io);
+    });
+
+    //player action, bet raise fold
+    socket.on("playerAction", (data) => {
+      gameLogic.handlePlayerAction(socket, data, io);
+    });
+    //Player folded
+    socket.on("fold", (data) => {
+      gameLogic.handleFold(socket, data, io);
+    });
     //New comment
     socket.on("newComment", async (data) => {
       //validation
