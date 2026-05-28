@@ -21,6 +21,8 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import VerifyEmailPage from './pages/VerifyEmailPage'
 import ResendVerificationPage from './pages/ResendVerificationPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 import UserProfilePage from './pages/UserProfilePage'
 import UserGamesPage from './pages/UserGamesPage'
 import TournamentsPage from './pages/TournamentsPage'
@@ -70,6 +72,8 @@ export default function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/verify/:code" element={<VerifyEmailPage />} />
             <Route path="/resend-verification" element={<ResendVerificationPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password/:code" element={<ResetPasswordPage />} />
 
             {/* 404 — catch-all, must be last */}
             <Route path="*" element={<NotFoundPage />} />

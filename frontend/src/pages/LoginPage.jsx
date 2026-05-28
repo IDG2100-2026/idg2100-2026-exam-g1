@@ -23,13 +23,11 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [forgotMsg, setForgotMsg] = useState("");
   const [showResend, setShowResend] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
-    setForgotMsg("");
     setLoading(true);
     try {
       const { accessToken, user } = await loginApi({ login: email, password });
@@ -100,17 +98,9 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Forgot password — shows a placeholder message since reset isn't implemented yet */}
-        <button
-          className="btn"
-          style={styles.forgotBtn}
-          onClick={() =>
-            setForgotMsg("Password reset is not available in this version.")
-          }
-        >
+        <Link to="/forgot-password" style={styles.forgotBtn}>
           Forgot password?
-        </button>
-        {forgotMsg && <p style={styles.forgotMsg}>{forgotMsg}</p>}
+        </Link>
 
         <p style={styles.footer}>
           Don't have an account? <Link to="/register">Register</Link>
@@ -151,17 +141,9 @@ const styles = {
     gap: "0.25rem",
   },
   forgotBtn: {
-    background: "none",
-    border: "none",
-    color: "var(--text-muted)",
-    fontSize: "0.85rem",
-    cursor: "pointer",
-    padding: 0,
-    textAlign: "left",
-  },
-  forgotMsg: {
     fontSize: "0.85rem",
     color: "var(--text-muted)",
+    textDecoration: "none",
   },
   footer: {
     fontSize: "0.875rem",

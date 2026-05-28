@@ -255,6 +255,10 @@ export default function UserProfilePage() {
               <span style={styles.statValue}>{stats.losses}</span>
               <span style={styles.statLabel}>Losses (last 30 days)</span>
             </div>
+            <div style={styles.statItem}>
+              <span style={styles.statValue}>{profile.points ?? 0}</span>
+              <span style={styles.statLabel}>Points balance</span>
+            </div>
           </div>
         </div>
 

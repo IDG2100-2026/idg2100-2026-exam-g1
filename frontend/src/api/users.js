@@ -75,3 +75,15 @@ export async function deleteUser(id) {
   const res = await axiosInstance.delete(`/users/${id}`)
   return res.data
 }
+
+// Request a password reset email. Always returns the same message for security.
+export async function forgotPassword(email) {
+  const res = await axiosInstance.post('/auth/forgot-password', { email })
+  return res.data
+}
+
+// Reset password using the code from the reset email.
+export async function resetPassword(code, password) {
+  const res = await axiosInstance.post(`/auth/reset-password/${code}`, { password })
+  return res.data
+}
