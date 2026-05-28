@@ -28,6 +28,7 @@ import AboutUsPage from './pages/AboutUsPage'
 import AboutSpanishDicePage from './pages/AboutSpanishDicePage'
 import TermsPage from './pages/TermsPage'
 import PrivacyPage from './pages/PrivacyPage'
+import NotFoundPage from './pages/NotFoundPage'
 
 function Layout() {
   return (
@@ -67,6 +68,9 @@ export default function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/verify/:code" element={<VerifyEmailPage />} />
             <Route path="/resend-verification" element={<ResendVerificationPage />} />
+
+            {/* 404 — catch-all, must be last */}
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </AppearanceProvider>
       </AuthProvider>
