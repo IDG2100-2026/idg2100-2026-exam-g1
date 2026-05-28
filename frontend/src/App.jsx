@@ -24,6 +24,7 @@ import ResendVerificationPage from './pages/ResendVerificationPage'
 import UserProfilePage from './pages/UserProfilePage'
 import UserGamesPage from './pages/UserGamesPage'
 import TournamentsPage from './pages/TournamentsPage'
+import IndividualTournamentPage from './pages/IndividualTournamentPage'
 import AboutUsPage from './pages/AboutUsPage'
 import AboutSpanishDicePage from './pages/AboutSpanishDicePage'
 import TermsPage from './pages/TermsPage'
@@ -57,6 +58,7 @@ export default function App() {
               <Route path="/profile/:id" element={<UserProfilePage />} />
               <Route path="/profile/:id/games" element={<UserGamesPage />} />
               <Route path="/tournaments" element={<TournamentsPage />} />
+              <Route path="/tournaments/:id" element={<IndividualTournamentPage />} />
               <Route path="/about" element={<AboutUsPage />} />
               <Route path="/about-dice" element={<AboutSpanishDicePage />} />
               <Route path="/terms" element={<TermsPage />} />
