@@ -73,9 +73,8 @@ export const register = async (req, res, next) => {
     subject: "Verify your email",
     html: `
     <h2>Welcome to Spanish Dice Poker</h2>
-    <p>Your verification code is: <strong>${verificationCode}</strong></p>
-    <p>This code expires in <strong>1 hour</strong></p>
-    <p>Or click here: <a href="${process.env.CLIENT_URL}/verify/${verificationCode}">Verify email</a></p>`,
+    <p>Click <a href="${process.env.CLIENT_URL}/verify/${verificationCode}">here</a> to verify email</p>
+    <p>This code expires in <strong>1 hour</strong></p>`,
   });
 
   res.status(201).json({
@@ -132,9 +131,8 @@ export const resendVerification = async (req, res, next) => {
     subject: "Verify your email",
     html: `
     <h2>Welcome to Spanish Dice Poker</h2>
-    <p>Your new verification code is: <strong>${verificationCode}</strong></p>
-    <p>This code expires in <strong>1 hour</strong></p>
-    <p>Or click here: <a href="${process.env.CLIENT_URL}/verify/${verificationCode}">Verify email</a></p>`,
+    <p>Click <a href="${process.env.CLIENT_URL}/verify/${verificationCode}">here</a> to verify your email</p>
+    <p>This code expires in <strong>1 hour</strong></p>`,
   });
 
   res.status(200).json({ message: "Verification email sent" });
@@ -273,9 +271,8 @@ export const forgotPassword = async (req, res, next) => {
     to: email,
     subject: "Reset your password",
     html: `<h2>Spanish Dice Poker - Password Reset</h2>
-    <p> Your reset code is: <strong>${resetCode}</strong></p>
-    <p>This code expires in <strong>1 hour</strong></p>
-    <p>Or click <a href="${process.env.CLIENT_URL}/reset-password/${resetCode}">here</a></p>`,
+    <p>Click <a href="${process.env.CLIENT_URL}/reset-password/${resetCode}">here</a> to reset your password</p>
+    <p>This code expires in <strong>1 hour</strong></p>`,
   });
   res
     .status(200)

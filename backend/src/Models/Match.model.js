@@ -33,7 +33,7 @@ const matchSchema = new Schema(
       required: true,
     },
 
-    //match state
+    //match status
     status: {
       type: String,
       enum: ["waiting", "ongoing", "finished"],
@@ -51,6 +51,48 @@ const matchSchema = new Schema(
     winner: {
       type: Schema.Types.ObjectId,
       ref: "User",
+    },
+
+    //Active game state
+    gameState: {
+      currentRound: {
+        type: Number,
+        default: 0,
+      },
+
+      phase: {
+        type: String,
+        enum: ["rolling", "betting"],
+        default: "rolling",
+      },
+
+      currentPlayerIndex: {
+        type: Number,
+        default: 0,
+      },
+
+      playerStates: [
+        {
+          user: { type: Schema.Types.ObjectId, ref: "User" },
+          chips: { type: Number },
+          dice: [String],
+          heldDice: [Boolean],
+          rollsUsed: { type: Number, default: 0 },
+          bet: { type: Number, default: 0 },
+          folded: { type: Boolean, default: false },
+          doneRolling: { type: Boolean, default: false },
+        },
+      ],
+
+      pot: {
+        type: Number,
+        default: 0,
+      },
+
+      currentBet: {
+        type: Number,
+        default: 0,
+      },
     },
 
     //Owner of the match

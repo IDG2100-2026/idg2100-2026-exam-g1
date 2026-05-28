@@ -1,5 +1,7 @@
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
+import Comment from "../Models/Comment.model.js";
+import * as gameLogic from "./gameLogic.js";
 
 const initWebSocket = (server) => {
   const io = new Server(server, {
@@ -10,8 +12,6 @@ const initWebSocket = (server) => {
   });
 
   io.use((socket, next) => {
-    console.log("auth:", socket.handshake.auth);
-    console.log("query:", socket.handshake.query);
     const token = socket.handshake.auth.token || socket.handshake.query.token;
 
     if (!token) {
@@ -42,6 +42,49 @@ const initWebSocket = (server) => {
         userId: socket.user._id,
         playerCount,
       });
+    });
+
+    //Player rolls dice
+    socket.on("rollDice", (data) => {
+      gameLogic.handleRoll(socket, data, io);
+    });
+
+    //Player is done rolling
+    socket.on("doneRolling", (data) => {
+      gameLogic.handleDoneRolling(socket, data, io);
+    });
+
+    //player action, bet raise fold
+    socket.on("playerAction", (data) => {
+      gameLogic.handlePlayerAction(socket, data, io);
+    });
+    //Player folded
+    socket.on("fold", (data) => {
+      gameLogic.handleFold(socket, data, io);
+    });
+    //New comment
+    socket.on("newComment", async (data) => {
+      //validation
+      if (!data.content?.trim()) return;
+      if (!["match", "tournament"].includes(data.targetType)) return;
+      if (!data.targetId) return;
+
+      try {
+        //Save to database
+        const comment = await Comment.create({
+          content: data.content,
+          author: socket.user._id,
+          targetType: data.targetType,
+          targetId: data.targetId,
+        });
+        await comment.populate("author", "username");
+
+        //Broadcast
+        io.to(data.targetId).emit("commentReceived", comment);
+      } catch (err) {
+        console.error("Comment error:", err);
+        socket.emit("error", { message: "Failed to save comment" });
+      }
     });
 
     socket.on("disconnect", () => {
