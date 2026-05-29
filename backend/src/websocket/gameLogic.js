@@ -1,4 +1,5 @@
 import Match from "../Models/Match.model.js";
+import User from "../Models/User.model.js";
 
 //Dice faces, RA = red ace, BK=black king etc
 const DICE_FACES = [
@@ -561,6 +562,28 @@ const handleShowdown = async (match, io) => {
 
       match.status = "finished";
       match.winner = overallWinner.user;
+
+      const eloField =
+        match.timeControl === 10
+          ? "elo.short"
+          : match.timeControl === 30
+            ? "elo.medium"
+            : "elo.long";
+
+      //Update winner points and stats
+      const totalPot = match.buyIn * match.players.length;
+      await User.findByIdAndUpdate(overallWinner.user, {
+        $inc: { points: totalPot, wins: 1, totalGames: 1, [eloField]: 7 },
+      });
+
+      //update loser stats
+      for (const p of gs.playerStates) {
+        if (p.user.toString() !== overallWinner.user.toString()) {
+          await User.findByIdAndUpdate(p.user, {
+            $inc: { losses: 1, totalGames: 1, [eloField]: -7 },
+          });
+        }
+      }
       match.markModified("gameState");
       await match.save();
 
