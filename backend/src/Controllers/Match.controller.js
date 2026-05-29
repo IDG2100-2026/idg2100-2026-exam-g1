@@ -97,6 +97,7 @@ export const createMatch = async (req, res, next) => {
     buyIn: req.body.buyIn,
     owner: req.user._id,
     players: [{ user: req.user._id, points: req.body.buyIn }],
+    tournament: req.body.tournament || null,
   });
   await match.populate("players.user", "username elo profilePicture");
   await match.populate("owner", "username");

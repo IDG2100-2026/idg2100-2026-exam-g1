@@ -29,7 +29,7 @@ const matchSchema = new Schema(
 
     buyIn: {
       type: Number,
-      enum: [1, 10, 50],
+      enum: [0, 1, 10, 50],
       required: true,
     },
 
@@ -93,6 +93,12 @@ const matchSchema = new Schema(
         type: Number,
         default: 0,
       },
+    },
+
+    tournament: {
+      type: Schema.Types.ObjectId,
+      ref: "Tournament",
+      default: null,
     },
 
     //Owner of the match

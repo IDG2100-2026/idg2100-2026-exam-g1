@@ -1,5 +1,6 @@
 import Match from "../Models/Match.model.js";
 import User from "../Models/User.model.js";
+import Tournament from "../Models/Tournament.model.js";
 
 //Dice faces, RA = red ace, BK=black king etc
 const DICE_FACES = [
@@ -159,18 +160,25 @@ function compareHands(hand1, hand2) {
 export const startGame = async (matchId, io) => {
   try {
     const match = await Match.findById(matchId);
-    //Build playerState for each player
-    const playerStates = match.players.map((p) => ({
-      user: p.user,
-      chips: 1500,
-      dice: rollDice(),
-      heldDice: [false, false, false, false, false],
-      rollsUsed: 1,
-      bet: 0,
-      folded: false,
-      doneRolling: false,
-    }));
 
+    //Build playerState for each player
+    //For tournament matches, use current tournament chips. For regular matches, start with 1500
+    const playerStates = match.players.map((p) => {
+      let startingChips = 1500;
+      if (match.tournament) {
+        startingChips = p.chips ?? 1500;
+      }
+      return {
+        user: p.user,
+        chips: startingChips,
+        dice: rollDice(),
+        heldDice: [false, false, false, false, false],
+        rollsUsed: 1,
+        bet: 0,
+        folded: false,
+        doneRolling: false,
+      };
+    });
     //Save game state to DB
     match.gameState = {
       currentRound: 1,
@@ -586,6 +594,81 @@ const handleShowdown = async (match, io) => {
       }
       match.markModified("gameState");
       await match.save();
+
+      //If its a tournament game, update tournament standings
+      if (match.tournament) {
+        const tournament = await Tournament.findById(match.tournament);
+        if (tournament) {
+          //Update all players chip counts in the tournament
+          for (const p of gs.playerStates) {
+            const tp = tournament.players.find(
+              (t) => t.user.toString() === p.user.toString(),
+            );
+
+            if (!tp) continue;
+            tp.chips = p.chips; //Carry chips forward to next round
+
+            //If player has 0 chips, eliminate and record placement
+            if (p.chips === 0) {
+              tp.eliminated = true;
+              //placement = number of non-eliminated players +1
+              const activeTournamentPlayers = tournament.players.filter(
+                (t) => !t.eliminated,
+              );
+              tp.placement = activeTournamentPlayers.length + 1;
+            }
+          }
+
+          //Find all matches thats not finished
+          const unfinishedMatches = await Match.find({
+            tournament: match.tournament,
+            status: { $ne: "finished" },
+          });
+
+          if (unfinishedMatches.length === 0) {
+            //End tournament
+            if (tournament.currentRound >= tournament.totalRounds) {
+              //Sort by chips to determine winner
+              const finalStandings = [...tournament.players]
+                .filter((p) => !p.eliminated)
+                .sort((a, b) => b.chips - a.chips);
+
+              //Record placement for remaning players
+              finalStandings.forEach((p, index) => {
+                p.placement = index + 1;
+              });
+
+              const prizePool = tournament.buyIn * tournament.players.length;
+              tournament.status = "finished";
+              tournament.winner = finalStandings[0].user;
+
+              //1st place - 50%
+              await User.findByIdAndUpdate(finalStandings[0].user, {
+                $inc: { points: Math.floor(prizePool * 0.5) },
+              });
+
+              //2nd place - 30%
+              if (finalStandings[1]) {
+                await User.findByIdAndUpdate(finalStandings[1].user, {
+                  $inc: { points: Math.floor(prizePool * 0.3) },
+                });
+              }
+
+              //3rd place - 20%
+              if (finalStandings[2]) {
+                await User.findByIdAndUpdate(finalStandings[2].user, {
+                  $inc: { points: Math.floor(prizePool * 0.2) },
+                });
+              }
+            } else {
+              tournament.currentRound += 1;
+            }
+          }
+
+          tournament.markModified("players");
+          await tournament.save();
+        }
+      }
 
       //Tell everyone game is over
       io.to(matchId).emit("gameOver", {
