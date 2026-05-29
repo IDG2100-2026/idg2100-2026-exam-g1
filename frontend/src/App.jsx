@@ -33,6 +33,13 @@ import TermsPage from './pages/TermsPage'
 import PrivacyPage from './pages/PrivacyPage'
 import NotFoundPage from './pages/NotFoundPage'
 
+// Admin
+import AdminLayout from './components/layout/AdminLayout'
+import AdminDashboardPage from './pages/admin/AdminDashboardPage'
+import AdminUsersPage from './pages/admin/AdminUsersPage'
+import AdminCommentsPage from './pages/admin/AdminCommentsPage'
+import AdminTournamentCreatePage from './pages/admin/AdminTournamentCreatePage'
+
 function Layout() {
   return (
     <>
@@ -74,6 +81,15 @@ export default function App() {
             <Route path="/resend-verification" element={<ResendVerificationPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password/:code" element={<ResetPasswordPage />} />
+
+            {/* Admin pages — own layout with role guard */}
+            <Route element={<AdminLayout />}>
+              <Route path="/admin" element={<AdminDashboardPage />} />
+              <Route path="/admin/users" element={<AdminUsersPage />} />
+              <Route path="/admin/comments" element={<AdminCommentsPage />} />
+              <Route path="/admin/tournaments/create"  element={<AdminTournamentCreatePage />} />
+              <Route path="/admin/tournaments/:id/edit" element={<AdminTournamentCreatePage />} />
+            </Route>
 
             {/* 404 — catch-all, must be last */}
             <Route path="*" element={<NotFoundPage />} />

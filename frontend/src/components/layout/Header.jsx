@@ -1,14 +1,3 @@
-// Sources:
-// - React useState: https://react.dev/reference/react/useState
-// - React useEffect: https://react.dev/reference/react/useEffect
-// - React useRef: https://react.dev/reference/react/useRef
-// - React Router Link / NavLink: https://reactrouter.com/en/main/components/link 
-//                                https://reactrouter.com/en/main/components/nav-link
-// - React Router useNavigate: https://reactrouter.com/en/main/hooks/use-navigate
-// - EventTarget.addEventListener: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
-// - Node.contains (click-outside): https://developer.mozilla.org/en-US/docs/Web/API/Node/contains
-// - CSS custom properties: https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties
-
 import { useState, useEffect, useRef } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
@@ -138,6 +127,9 @@ export default function Header() {
           <NavLink to="/lobby"       className={({ isActive }) => 'header-nav-link' + (isActive ? ' active' : '')}>Lobby</NavLink>
           <NavLink to="/tournaments" className={({ isActive }) => 'header-nav-link' + (isActive ? ' active' : '')}>Tournaments</NavLink>
           <NavLink to="/about-dice"  className={({ isActive }) => 'header-nav-link' + (isActive ? ' active' : '')}>About the Game</NavLink>
+          {currentUser?.role === 'admin' && (
+            <NavLink to="/admin" className={({ isActive }) => 'header-nav-link' + (isActive ? ' active' : '')}>Admin</NavLink>
+          )}
         </nav>
 
         {/* Desktop appearance button + greeting */}
@@ -222,6 +214,9 @@ export default function Header() {
           <NavLink to="/lobby"       onClick={closeMenu} className={({ isActive }) => isActive ? 'active' : ''}>Lobby</NavLink>
           <NavLink to="/tournaments" onClick={closeMenu} className={({ isActive }) => isActive ? 'active' : ''}>Tournaments</NavLink>
           <NavLink to="/about-dice"  onClick={closeMenu} className={({ isActive }) => isActive ? 'active' : ''}>About the Game</NavLink>
+          {currentUser?.role === 'admin' && (
+            <NavLink to="/admin" onClick={closeMenu} className={({ isActive }) => isActive ? 'active' : ''}>Admin</NavLink>
+          )}
         </nav>
 
         <hr className="header-mobile-divider" />

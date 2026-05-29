@@ -282,7 +282,7 @@ export default function TournamentPage() {
             )}
             {isOwner && (
               <>
-                <Link to={`/tournaments/${id}/edit`} className="btn btn-secondary">Edit</Link>
+                <Link to={`/admin/tournaments/${id}/edit`} className="btn btn-secondary">Edit</Link>
                 <button
                   className="btn"
                   style={{ background: 'var(--error, #c0392b)', color: '#fff', border: 'none' }}

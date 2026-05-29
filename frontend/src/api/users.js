@@ -1,8 +1,3 @@
-// Sources:
-// - axios request methods (get, post, put): https://axios-http.com/docs/api_intro
-// - FormData (multipart file upload): https://developer.mozilla.org/en-US/docs/Web/API/FormData
-// - FormData.append: https://developer.mozilla.org/en-US/docs/Web/API/FormData/append
-
 import axiosInstance from './axiosInstance'
 
 // Register a new user account.
@@ -38,6 +33,12 @@ export async function verifyEmail(code) {
 // Resend the email verification code.
 export async function resendVerification(data) {
   const res = await axiosInstance.post('/auth/resend-verification', data)
+  return res.data
+}
+
+// List all users (admin only). Accepts filters: search, role, isBanned.
+export async function listUsers(params) {
+  const res = await axiosInstance.get('/users', { params })
   return res.data
 }
 
