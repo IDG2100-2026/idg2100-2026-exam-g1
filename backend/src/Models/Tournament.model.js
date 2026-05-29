@@ -81,7 +81,9 @@ const tournamentSchema = new Schema(
     players: [
       {
         user: { type: Schema.Types.ObjectId, ref: "User" },
-        points: { type: Number, default: 0 },
+        chips: { type: Number, default: 1500 },
+        eliminated: { type: Boolean, default: false },
+        placement: { type: Number, default: null },
       },
     ],
 

@@ -95,6 +95,12 @@ const matchSchema = new Schema(
       },
     },
 
+    tournament: {
+      type: Schema.Types.ObjectId,
+      ref: "Tournament",
+      default: null,
+    },
+
     //Owner of the match
     owner: {
       type: Schema.Types.ObjectId,
