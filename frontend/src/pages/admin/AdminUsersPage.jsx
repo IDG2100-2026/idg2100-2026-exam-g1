@@ -29,7 +29,7 @@ export default function AdminUsersPage() {
     if (roleFilter)   params.role     = roleFilter
     if (bannedFilter) params.isBanned = bannedFilter
     listUsers(params)
-      .then(setUsers)
+      .then(res => setUsers(res.results ?? []))
       .catch(() => setError('Failed to load users.'))
       .finally(() => setLoading(false))
   }, [debouncedSearch, roleFilter, bannedFilter])
