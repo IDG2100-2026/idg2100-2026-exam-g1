@@ -1,10 +1,3 @@
-// Sources:
-// - React useState: https://react.dev/reference/react/useState
-// - React useEffect: https://react.dev/reference/react/useEffect
-// - React Router Link: https://reactrouter.com/en/main/components/link
-// - Promise.all (parallel fetch): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all
-// - Array.prototype.sort: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
-
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppearance } from '../context/AppearanceContext'
@@ -46,17 +39,17 @@ export default function HomePage() {
           listTournaments({ status: 'upcoming', limit: 5, sort: 'startDate' }),
         ])
 
-        setLobbyGames(lobbyRes.data ?? [])
+        setLobbyGames(lobbyRes.results ?? [])
 
         // Top 5: live games sorted by avg ELO, fill with recent completed if needed
-        const live = (liveRes.data ?? [])
+        const live = (liveRes.results ?? [])
           .sort((a, b) => averageElo(b.players) - averageElo(a.players))
         const combined = live.length >= 5
           ? live.slice(0, 5)
-          : [...live, ...(completedRes.data ?? [])].slice(0, 5)
+          : [...live, ...(completedRes.results ?? [])].slice(0, 5)
         setTopGames(combined)
 
-        setTournaments(tourRes.data ?? [])
+        setTournaments(tourRes.results ?? [])
       } catch {
         setError('Failed to load homepage data. Is the backend running?')
       } finally {

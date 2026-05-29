@@ -185,7 +185,8 @@ export default function TournamentPage() {
   if (error)   return <div className="container" style={{ paddingTop: '2rem' }}><ErrorMessage message={error} /></div>
   if (!tournament) return null
 
-  const isOwner   = tournament.owner?._id === currentUser?._id || tournament.owner === currentUser?._id
+  const isOwner        = tournament.owner?._id === currentUser?._id || tournament.owner === currentUser?._id
+  const canAdminister  = isOwner || currentUser?.role === 'admin'
   const isJoined  = tournament.players?.some(p => p.user?._id === currentUser?._id || p.user === currentUser?._id)
   const isFull    = tournament.players?.length >= tournament.maxPlayers
   const canJoin   = isLoggedIn && !isJoined && !isFull && tournament.status === 'upcoming'
@@ -275,12 +276,12 @@ export default function TournamentPage() {
             )}
 
             {/* Owner / admin controls */}
-            {isOwner && status !== 'finished' && status !== 'cancelled' && (
+            {canAdminister && status !== 'finished' && status !== 'cancelled' && (
               <button className="btn btn-secondary" onClick={handleCancel} disabled={actionLoading}>
                 Cancel tournament
               </button>
             )}
-            {isOwner && (
+            {canAdminister && (
               <>
                 <Link to={`/admin/tournaments/${id}/edit`} className="btn btn-secondary">Edit</Link>
                 <button
