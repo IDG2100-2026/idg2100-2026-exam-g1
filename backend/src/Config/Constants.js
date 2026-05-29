@@ -3,3 +3,5 @@ export const TOKEN_EXPIRY = {
   REFRESH: "7d",
   REFRESH_MS: 7 * 24 * 60 * 60 * 1000, //7 days in ms for the cookie
 };
+
+export const WEEKLY_POINTS = 100;

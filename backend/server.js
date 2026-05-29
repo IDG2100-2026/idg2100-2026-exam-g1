@@ -3,6 +3,7 @@ import connectDB from "./src/Config/Database.js";
 import app from "./app.js";
 import { createServer } from "http";
 import initWebSocket from "./src/websocket/index.js";
+import weeklyPoints from "./src/Utils/WeeklyPoints.js";
 
 const server = createServer(app);
 const io = initWebSocket(server);
@@ -11,6 +12,7 @@ app.set("io", io);
 const startServer = async () => {
   try {
     await connectDB();
+    weeklyPoints();
     server.listen(process.env.PORT || 5000, () => {
       console.log(`Server running on port: ${process.env.PORT || 5000}`);
     });
@@ -19,5 +21,4 @@ const startServer = async () => {
     process.exit(1);
   }
 };
-
 startServer();
