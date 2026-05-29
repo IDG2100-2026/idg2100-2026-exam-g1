@@ -39,3 +39,9 @@ export async function deleteGame(id) {
   const res = await axiosInstance.delete(`/matches/${id}`)
   return res.data
 }
+
+// Fetch public platform activity stats (active players, available games, games this week).
+export async function getPlatformStats() {
+  const res = await axiosInstance.get('/stats')
+  return res.data
+}

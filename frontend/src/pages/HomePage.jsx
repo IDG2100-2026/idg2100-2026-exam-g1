@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppearance } from '../context/AppearanceContext'
-import { listGames } from '../api/games'
+import { listGames, getPlatformStats } from '../api/games'
 import { listTournaments } from '../api/tournaments'
 import LobbyPreview from '../components/games/LobbyPreview'
 import TopGames from '../components/games/TopGames'
@@ -16,6 +16,38 @@ function averageElo(players) {
   return elos.reduce((a, b) => a + b, 0) / elos.length
 }
 
+// Counts unique players across all in-progress games
+function countActivePlayers(liveGames) {
+  const ids = new Set()
+  liveGames.forEach(g => g.players?.forEach(p => {
+    const id = p.user?._id ?? p.user
+    if (id) ids.add(String(id))
+  }))
+  return ids.size
+}
+
+function PlatformActivity({ stats }) {
+  if (!stats) return null
+  const items = [
+    { label: 'Active players',  value: stats.activePlayers },
+    { label: 'Available games', value: stats.availableGames },
+    { label: 'Games this week', value: stats.gamesLastWeek ?? '—' },
+  ]
+  return (
+    <section style={actStyles.section}>
+      <h2 style={actStyles.title}>Platform Activity</h2>
+      <div style={actStyles.grid}>
+        {items.map(item => (
+          <div key={item.label} style={actStyles.card}>
+            <span style={actStyles.value}>{item.value}</span>
+            <span style={actStyles.label}>{item.label}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 // Homepage — fetches waiting games, top-rated live/completed games, and upcoming tournaments in parallel.
 export default function HomePage() {
   const { lobbyCount } = useAppearance()
@@ -23,6 +55,7 @@ export default function HomePage() {
   const [lobbyGames, setLobbyGames] = useState([])
   const [topGames, setTopGames] = useState([])
   const [tournaments, setTournaments] = useState([])
+  const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -31,7 +64,6 @@ export default function HomePage() {
       setLoading(true)
       setError('')
       try {
-        // Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all
         const [lobbyRes, liveRes, completedRes, tourRes] = await Promise.all([
           listGames({ status: 'waiting', limit: 20 }),
           listGames({ status: 'in_progress', limit: 20 }),
@@ -39,17 +71,31 @@ export default function HomePage() {
           listTournaments({ status: 'upcoming', limit: 5, sort: 'startDate' }),
         ])
 
-        setLobbyGames(lobbyRes.results ?? [])
+        const lobby = lobbyRes.results ?? []
+        const live  = liveRes.results ?? []
+
+        setLobbyGames(lobby)
 
         // Top 5: live games sorted by avg ELO, fill with recent completed if needed
-        const live = (liveRes.results ?? [])
-          .sort((a, b) => averageElo(b.players) - averageElo(a.players))
-        const combined = live.length >= 5
-          ? live.slice(0, 5)
-          : [...live, ...(completedRes.results ?? [])].slice(0, 5)
+        const sorted = [...live].sort((a, b) => averageElo(b.players) - averageElo(a.players))
+        const combined = sorted.length >= 5
+          ? sorted.slice(0, 5)
+          : [...sorted, ...(completedRes.results ?? [])].slice(0, 5)
         setTopGames(combined)
 
         setTournaments(tourRes.results ?? [])
+
+        // Derive available games + active players from already-fetched data.
+        // Games last week comes from the /stats endpoint (falls back gracefully).
+        const activePlayers  = countActivePlayers(live)
+        const availableGames = lobby.length
+        let gamesLastWeek = null
+        try {
+          const s = await getPlatformStats()
+          gamesLastWeek = s.gamesLastWeek ?? s.gamesPlayed?.lastWeek ?? null
+        } catch { /* /stats endpoint may not be available yet */ }
+
+        setStats({ activePlayers, availableGames, gamesLastWeek })
       } catch {
         setError('Failed to load homepage data. Is the backend running?')
       } finally {
@@ -76,11 +122,12 @@ export default function HomePage() {
         </Link>
       </section>
 
-      {loading && <LoadingSpinner message="Loading platform activity..." />}
+      {loading && <LoadingSpinner message="Loading..." />}
       <ErrorMessage message={error} />
 
       {!loading && !error && (
         <>
+          <PlatformActivity stats={stats} />
           <LobbyPreview games={lobbyGames} limit={lobbyCount} />
           <TopGames games={topGames} />
           <TournamentPreview tournaments={tournaments} />
@@ -88,6 +135,27 @@ export default function HomePage() {
       )}
     </div>
   )
+}
+
+const actStyles = {
+  section: { marginBottom: '2.5rem' },
+  title: { fontSize: '1.25rem', marginBottom: '1rem' },
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+    gap: '1rem',
+  },
+  card: {
+    background: 'var(--bg-surface)',
+    border: '1px solid var(--border)',
+    borderRadius: 'var(--radius)',
+    padding: '1rem',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.25rem',
+  },
+  value: { fontSize: '2rem', fontWeight: 700, color: 'var(--accent)' },
+  label: { fontSize: '0.8rem', color: 'var(--text-muted)' },
 }
 
 const styles = {

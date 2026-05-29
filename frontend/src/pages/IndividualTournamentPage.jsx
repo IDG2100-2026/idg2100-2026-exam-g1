@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { io } from 'socket.io-client'
 import {
   getTournament,
   joinTournament,
@@ -8,7 +9,8 @@ import {
   cancelTournament,
   deleteTournament,
 } from '../api/tournaments'
-import { getComments, createComment } from '../api/comments'
+import { listGames } from '../api/games'
+import { getComments } from '../api/comments'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 import ErrorMessage from '../components/ui/ErrorMessage'
 
@@ -53,7 +55,7 @@ const STATUS_STYLE = {
 export default function TournamentPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { currentUser, isLoggedIn } = useAuth()
+  const { currentUser, isLoggedIn, token } = useAuth()
 
   const [tournament, setTournament] = useState(null)
   const [comments, setComments]     = useState([])
@@ -63,12 +65,12 @@ export default function TournamentPage() {
   const [actionLoading, setActionLoading] = useState(false)
   const [actionError, setActionError]     = useState('')
 
-  const [commentText, setCommentText]   = useState('')
-  const [posting, setPosting]           = useState(false)
-  const [commentError, setCommentError] = useState('')
+  const [commentText, setCommentText] = useState('')
 
   const [countdown, setCountdown] = useState('')
+  const [ongoingGames, setOngoingGames] = useState([])
   const commentsEndRef = useRef(null)
+  const socketRef = useRef(null)
 
   async function fetchTournament() {
     try {
@@ -82,18 +84,19 @@ export default function TournamentPage() {
     }
   }
 
-  async function fetchComments() {
-    try {
-      const res = await getComments('tournament', id)
-      setComments(res ?? [])
-    } catch {
-      // non-fatal
-    }
-  }
-
   useEffect(() => {
     fetchTournament()
-    fetchComments()
+
+    // Load existing comments via REST, then keep live via WebSocket
+    getComments('tournament', id)
+      .then(res => setComments(res ?? []))
+      .catch(() => {})
+
+    const socket = io(import.meta.env.VITE_API_URL, { auth: { token } })
+    socketRef.current = socket
+    socket.emit('joinMatch', id)
+    socket.on('commentRecieved', comment => setComments(prev => [...prev, comment]))
+    return () => socket.disconnect()
   }, [id])
 
   // Live countdown ticker for upcoming tournaments
@@ -103,6 +106,30 @@ export default function TournamentPage() {
     const interval = setInterval(() => setCountdown(calcCountdown(tournament.startDate)), 1000)
     return () => clearInterval(interval)
   }, [tournament?.startDate, tournament?.status])
+
+  // Fetch ongoing games when tournament is running; auto-redirect joined players to their game
+  useEffect(() => {
+    if (tournament?.status !== 'ongoing') return
+
+    async function fetchOngoingGames() {
+      try {
+        const res = await listGames({ tournament: id, status: 'in_progress' })
+        const games = res.results ?? []
+        setOngoingGames(games)
+
+        if (currentUser) {
+          const myGame = games.find(g =>
+            g.players?.some(p => p.user?._id === currentUser._id || p.user === currentUser._id)
+          )
+          if (myGame) navigate(`/games/${myGame._id}`)
+        }
+      } catch { /* non-fatal */ }
+    }
+
+    fetchOngoingGames()
+    const interval = setInterval(fetchOngoingGames, 15000)
+    return () => clearInterval(interval)
+  }, [tournament?.status, id, currentUser?._id])
 
   // Auto-scroll comments to bottom
   useEffect(() => {
@@ -163,22 +190,15 @@ export default function TournamentPage() {
     }
   }
 
-  async function handlePostComment(e) {
+  function handlePostComment(e) {
     e.preventDefault()
     if (!commentText.trim()) return
-    setPosting(true)
-    setCommentError('')
-    try {
-      const res = await createComment({ content: commentText.trim(), targetType: 'tournament', targetId: id })
-      setCommentText('')
-      if (res) setComments(prev => [...prev, res])
-      fetchComments().catch(() => {})
-    } catch (err) {
-      const msg = err.response?.data?.errors?.[0] ?? err.response?.data?.message ?? 'Failed to post comment.'
-      setCommentError(msg)
-    } finally {
-      setPosting(false)
-    }
+    socketRef.current.emit('newComment', {
+      targetType: 'tournament',
+      targetId: id,
+      content: commentText.trim(),
+    })
+    setCommentText('')
   }
 
   if (loading) return <div className="container"><LoadingSpinner message="Loading tournament..." /></div>
@@ -319,6 +339,29 @@ export default function TournamentPage() {
           </section>
         )}
 
+        {/* Ongoing games — shown to spectators and players awaiting their round */}
+        {status === 'ongoing' && (
+          <section>
+            <h2 style={styles.sectionTitle}>Ongoing Games</h2>
+            {ongoingGames.length === 0 ? (
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+                {isJoined ? 'Waiting for your next round to be assigned…' : 'No games in progress right now.'}
+              </p>
+            ) : (
+              <div style={styles.gameList}>
+                {ongoingGames.map(g => (
+                  <Link key={g._id} to={`/games/${g._id}`} style={styles.gameRow}>
+                    <span style={styles.gamePlayers}>
+                      {g.players?.map(p => p.user?.username ?? 'Unknown').join(' vs ')}
+                    </span>
+                    <span style={styles.gameWatch}>Watch →</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
         {/* Standings (ongoing / finished) */}
         {(status === 'ongoing' || status === 'finished') && tournament.standings?.length > 0 && (
           <section>
@@ -370,7 +413,6 @@ export default function TournamentPage() {
 
         {isLoggedIn ? (
           <form onSubmit={handlePostComment} style={styles.commentForm}>
-            <ErrorMessage message={commentError} />
             <textarea
               value={commentText}
               onChange={e => setCommentText(e.target.value)}
@@ -384,9 +426,9 @@ export default function TournamentPage() {
               type="submit"
               className="btn btn-primary"
               style={{ width: '100%' }}
-              disabled={posting || !commentText.trim()}
+              disabled={!commentText.trim()}
             >
-              {posting ? 'Posting…' : 'Post'}
+              Post
             </button>
           </form>
         ) : (
@@ -460,6 +502,16 @@ const styles = {
   countdownValue: { fontSize: '1.75rem', fontWeight: 800, fontVariantNumeric: 'tabular-nums', color: 'var(--accent)' },
 
   sectionTitle: { fontSize: '1.1rem', marginBottom: '0.75rem' },
+
+  gameList: { display: 'flex', flexDirection: 'column', gap: '0.4rem' },
+  gameRow: {
+    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+    padding: '0.6rem 0.75rem',
+    background: 'var(--bg-surface)', border: '1px solid var(--border)',
+    borderRadius: 'var(--radius)', textDecoration: 'none',
+  },
+  gamePlayers: { fontSize: '0.875rem', fontWeight: 600, color: 'var(--text)' },
+  gameWatch: { fontSize: '0.8rem', color: 'var(--accent)' },
 
   playerList: { display: 'flex', flexWrap: 'wrap', gap: '0.5rem' },
   playerChip: {

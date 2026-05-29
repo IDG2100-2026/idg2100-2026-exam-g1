@@ -1,22 +1,13 @@
-// Sources:
-// - React useState: https://react.dev/reference/react/useState
-// - React useEffect: https://react.dev/reference/react/useEffect
-// - React useRef: https://react.dev/reference/react/useRef
-// - React Router useParams: https://reactrouter.com/en/main/hooks/use-params
-// - Element.scrollIntoView: https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
-// - setInterval / clearInterval: https://developer.mozilla.org/en-US/docs/Web/API/setInterval
-// - CSS Grid layout: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout
-// - CSS position sticky: https://developer.mozilla.org/en-US/docs/Web/CSS/position
-
 import { useEffect, useState, useRef } from "react";
 import { useParams, useLocation, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useAppearance } from "../context/AppearanceContext";
 import { getGame, joinGame, leaveGame } from "../api/games";
-import { getComments, createComment } from "../api/comments";
+import { getComments } from "../api/comments";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import ErrorMessage from "../components/ui/ErrorMessage";
 import { io } from "socket.io-client";
+import GameBoard from "../components/game-board/GameBoard";
 
 // Formats the game variant into a short readable string, e.g. "Best of 5 · Straights · 10s"
 function formatVariant(game) {
@@ -52,8 +43,6 @@ export default function GamePage() {
   const [actionError, setActionError] = useState("");
 
   const [commentText, setCommentText] = useState("");
-  const [posting, setPosting] = useState(false);
-  const [commentError, setCommentError] = useState("");
 
   const commentsEndRef = useRef(null);
   const socketRef = useRef(null);
@@ -263,27 +252,18 @@ export default function GamePage() {
         </div>
 
         {/* Board area */}
-        <div
-          style={{
-            ...styles.board,
-            background: boardColor,
-            position: "relative",
-          }}
-        >
-          {isWaiting && (
+        {isWaiting ? (
+          <div style={{ ...styles.board, background: boardColor, position: "relative" }}>
             <div style={styles.waitingOverlay}>
               <p style={styles.waitingTitle}>Waiting for players...</p>
               <p style={styles.waitingSub}>
                 Page refreshes automatically every 15 seconds
               </p>
             </div>
-          )}
-          {!isWaiting && (
-            <p style={styles.boardPlaceholder}>
-              Game board — coming in a future sprint
-            </p>
-          )}
-        </div>
+          </div>
+        ) : (
+          <GameBoard game={game} currentUser={currentUser} />
+        )}
       </div>
 
       {/* Comments sidebar */}
@@ -312,7 +292,6 @@ export default function GamePage() {
 
         {isLoggedIn ? (
           <form onSubmit={handlePostComment} style={styles.commentForm}>
-            <ErrorMessage message={commentError} />
             <textarea
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
@@ -326,9 +305,9 @@ export default function GamePage() {
               type="submit"
               className="btn btn-primary"
               style={{ width: "100%" }}
-              disabled={posting || !commentText.trim()}
+              disabled={!commentText.trim()}
             >
-              {posting ? "Posting..." : "Post"}
+              Post
             </button>
           </form>
         ) : (
@@ -394,11 +373,6 @@ const styles = {
   waitingSub: {
     color: "rgba(255,255,255,0.7)",
     fontSize: "0.85rem",
-  },
-  boardPlaceholder: {
-    color: "rgba(255,255,255,0.5)",
-    fontSize: "0.9rem",
-    fontStyle: "italic",
   },
   sidebar: {
     background: "var(--bg-surface)",
