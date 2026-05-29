@@ -2,6 +2,7 @@ import Tournament from "../Models/Tournament.model.js";
 import AppError from "../Utils/AppError.js";
 import User from "../Models/User.model.js";
 import { body } from "express-validator";
+import Match from "../Models/Match.model.js";
 
 //---------------CREATE TOURNAMENT RULES---------------------
 export const createTournamentRules = [
@@ -105,11 +106,11 @@ export const getTournament = async (req, res, next) => {
 
   //Calculate standings for ongoing tournaments
   const standings = [...tournament.players]
-    .sort((a, b) => b.points - a.points)
+    .sort((a, b) => b.chips - a.chips)
     .map((player, index) => ({
       position: index + 1,
       user: player.user,
-      points: player.points,
+      chips: player.chips,
     }));
 
   res.status(200).json({ ...tournament.toObject(), standings });
@@ -199,9 +200,58 @@ export const joinTournament = async (req, res, next) => {
   await user.save();
 
   //Add player
-  tournament.players.push({ user: req.user._id, points: 0 });
+  tournament.players.push({ user: req.user._id, chips: 1500 });
   await tournament.save();
   res.status(200).json(tournament);
+};
+
+//----------------------START TOURNAMENT----------------------
+export const startTournament = async (req, res, next) => {
+  const tournament = await Tournament.findById(req.params.id);
+  if (!tournament) return next(new AppError("Tournament not found", 404));
+
+  //Can only start upcomming tournaments
+  if (tournament.status !== "upcoming") {
+    return next(new AppError("Tournament is not upcoming", 400));
+  }
+
+  //Need atleast 2 players
+  if (tournament.players.length < 2) {
+    return next(new AppError("Needs at least 2 players to start", 400));
+  }
+
+  //Set status to ongoing and round to 1
+  tournament.status = "ongoing";
+  tournament.currentRound = 1;
+  await tournament.save();
+
+  //Suffle players randomly for pairing
+  const activePlayers = [...tournament.players].sort(() => Math.random() - 0.5);
+
+  //Pair players, if odd number last player gets a bye
+  const pairs = [];
+  for (let i = 0; i < activePlayers.length - 1; i += 2) {
+    pairs.push([activePlayers[i], activePlayers[i + 1]]);
+  }
+
+  //Create match for each pair
+  for (const [p1, p2] of pairs) {
+    await Match.create({
+      variant: tournament.variant,
+      timeControl: tournament.timeControl,
+      rounds: 3,
+      maxPlayers: 2,
+      buyIn: 0, //Buy in is payed when joining the tournament
+      owner: tournament.owner,
+      tournament: tournament._id,
+      status: "waiting",
+      players: [
+        { user: p1.user, chips: p1.chips },
+        { user: p2.user, chips: p2.chips },
+      ],
+    });
+  }
+  res.status(200).json({ message: "Tournament started", tournament });
 };
 
 //----------------------LEAVE TOURNAMENT----------------------

@@ -19,6 +19,9 @@ Content-Type: application/json
   "maxPlayers": 4
 }
 
+###Start tournament
+POST http://localhost:5000/tournaments/6a19d66c9a755a6586d8e765/start
+
 
 ### CREATE tournament - should fail validation (title too long)
 POST http://localhost:5000/tournaments

@@ -29,7 +29,7 @@ const matchSchema = new Schema(
 
     buyIn: {
       type: Number,
-      enum: [1, 10, 50],
+      enum: [0, 1, 10, 50],
       required: true,
     },
 

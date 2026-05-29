@@ -18,6 +18,6 @@ router.post(
 router.post("/:id/join", auth, matchController.joinMatch); //Join match - auth required
 router.delete("/:id", auth, matchController.deleteMatch); //Delete match - auth required
 router.post("/:id/leave", auth, matchController.leaveMatch); //Leave match - auth reqired
-router.get("/activity", getPlatformActivity); //get platform activity last week
+router.get("/activity", matchController.getPlatformActivity); //get platform activity last week
 
 export default router;

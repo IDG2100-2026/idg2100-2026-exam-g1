@@ -25,6 +25,15 @@ router.post(
   validateRequest,
   tournamentController.createTournament,
 );
+
+//Start tournament
+router.post(
+  "/:id/start",
+  auth,
+  requireAdmin,
+  tournamentController.startTournament,
+);
+
 //Update tournament
 router.put(
   "/:id",
