@@ -204,3 +204,23 @@ export const deleteMatch = async (req, res, next) => {
   await Match.findByIdAndDelete(req.params.id);
   res.status(200).json({ message: "Match deleted" });
 };
+
+//----------------PLATFORM ACTIVITY----------------
+export const getPlatformActivity = async (req, res, next) => {
+  const oneWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+  const ongoingMatches = await Match.find({ status: "ongoing" });
+  const activePlayers = ongoingMatches.reduce(
+    (total, match) => total + match.players.length,
+    0,
+  );
+
+  const gamesLastWeek = await Match.countDocuments({
+    status: "finished",
+    updatedAt: { $gte: oneWeek },
+  });
+
+  const availableGames = await Match.countDocuments({ status: "waiting" });
+
+  res.status(200).json({ activePlayers, gamesLastWeek, availableGames });
+};
