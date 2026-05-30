@@ -95,7 +95,7 @@ export default function TournamentPage() {
     const socket = io(import.meta.env.VITE_API_URL, { auth: { token } })
     socketRef.current = socket
     socket.emit('joinMatch', id)
-    socket.on('commentRecieved', comment => setComments(prev => [...prev, comment]))
+    socket.on('commentReceived', comment => setComments(prev => [...prev, comment]))
     return () => socket.disconnect()
   }, [id])
 

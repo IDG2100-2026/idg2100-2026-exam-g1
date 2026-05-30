@@ -1,16 +1,16 @@
-// Sources:
-// - Custom Elements: https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements
-// - Shadow DOM: https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_shadow_DOM
-// - CustomEvent: https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent
-
-// Grid positions (row, col) for each die face value in a 3x3 pip grid
-const PIP_POSITIONS = {
-  1: [[1, 1]],
-  2: [[0, 2], [2, 0]],
-  3: [[0, 2], [1, 1], [2, 0]],
-  4: [[0, 0], [0, 2], [2, 0], [2, 2]],
-  5: [[0, 0], [0, 2], [1, 1], [2, 0], [2, 2]],
-  6: [[0, 0], [0, 2], [1, 0], [1, 2], [2, 0], [2, 2]],
+const FACE_DATA = {
+  RA: { rank: 'A', suit: '♥', red: true },
+  RK: { rank: 'K', suit: '♥', red: true },
+  RQ: { rank: 'Q', suit: '♥', red: true },
+  RJ: { rank: 'J', suit: '♥', red: true },
+  R8: { rank: '8', suit: '♥', red: true },
+  R7: { rank: '7', suit: '♥', red: true },
+  BA: { rank: 'A', suit: '♠', red: false },
+  BK: { rank: 'K', suit: '♠', red: false },
+  BQ: { rank: 'Q', suit: '♠', red: false },
+  BJ: { rank: 'J', suit: '♠', red: false },
+  B8: { rank: '8', suit: '♠', red: false },
+  B7: { rank: '7', suit: '♠', red: false },
 }
 
 class DieElement extends HTMLElement {
@@ -24,13 +24,8 @@ class DieElement extends HTMLElement {
     this._onClick = this._onClick.bind(this)
   }
 
-  connectedCallback() {
-    this.render()
-  }
-
-  attributeChangedCallback() {
-    if (this.isConnected) this.render()
-  }
+  connectedCallback() { this.render() }
+  attributeChangedCallback() { if (this.isConnected) this.render() }
 
   _onClick() {
     if (this.hasAttribute('disabled')) return
@@ -42,47 +37,64 @@ class DieElement extends HTMLElement {
   }
 
   render() {
-    const value = Number(this.getAttribute('value')) || 0
+    const face = this.getAttribute('value') ?? ''
     const held = this.hasAttribute('held')
     const disabled = this.hasAttribute('disabled')
-    const positions = PIP_POSITIONS[value] ?? []
+    const data = FACE_DATA[face]
 
-    const cells = Array.from({ length: 9 }, (_, i) => {
-      const row = Math.floor(i / 3)
-      const col = i % 3
-      if (value === 0) {
-        return i === 4
-          ? `<div class="cell"><span class="unknown">?</span></div>`
-          : `<div class="cell"></div>`
-      }
-      const active = positions.some(([r, c]) => r === row && c === col)
-      return `<div class="cell">${active ? '<div class="pip"></div>' : ''}</div>`
-    }).join('')
+    let inner
+    if (!data) {
+      inner = `<span class="unknown">?</span>`
+    } else {
+      const color = data.red ? '#c0392b' : '#1a1a1a'
+      inner = `
+        <span class="corner tl" style="color:${color}">${data.rank}</span>
+        <span class="suit" style="color:${color}">${data.suit}</span>
+        <span class="corner br" style="color:${color}">${data.rank}</span>
+      `
+    }
 
     this.shadowRoot.innerHTML = `
       <style>
         :host { display: inline-block; user-select: none; }
         .die {
-          width: 54px;
-          height: 54px;
-          background: ${held ? '#e8c84a' : value === 0 ? '#555' : '#f5f5f5'};
-          border: 2.5px solid ${held ? '#c9a800' : value === 0 ? '#666' : '#ccc'};
-          border-radius: 10px;
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          padding: 5px;
-          gap: 2px;
+          width: 52px; height: 52px;
+          background: ${held ? '#fff8dc' : data ? '#fff' : '#555'};
+          border: 2.5px solid ${held ? '#c9a800' : data ? '#ccc' : '#666'};
+          box-shadow: ${held ? '0 0 0 2px #c9a800' : 'none'};
+          border-radius: 8px;
+          position: relative;
           cursor: ${disabled ? 'default' : 'pointer'};
-          opacity: ${disabled ? '0.45' : '1'};
-          transition: transform 0.1s ease, background 0.15s, border-color 0.15s;
+          opacity: ${disabled ? 0.45 : 1};
+          transition: transform 0.1s, background 0.15s, border-color 0.15s;
           box-sizing: border-box;
         }
         .die:hover { transform: ${disabled ? 'none' : 'scale(1.08)'}; }
-        .cell { display: flex; align-items: center; justify-content: center; }
-        .pip { width: 9px; height: 9px; background: #1a1a1a; border-radius: 50%; display: block; }
-        .unknown { font-size: 1rem; color: #aaa; font-weight: 700; line-height: 1; }
+        .corner {
+          position: absolute;
+          font-size: 0.65rem;
+          font-weight: 800;
+          line-height: 1;
+        }
+        .tl { top: 3px; left: 4px; }
+        .br { bottom: 3px; right: 4px; transform: rotate(180deg); }
+        .suit {
+          position: absolute;
+          top: 50%; left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 1.4rem;
+          line-height: 1;
+        }
+        .unknown {
+          position: absolute;
+          top: 50%; left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 1.1rem;
+          color: #aaa;
+          font-weight: 700;
+        }
       </style>
-      <div class="die">${cells}</div>
+      <div class="die">${inner}</div>
     `
     this.shadowRoot.querySelector('.die').addEventListener('click', this._onClick)
   }
