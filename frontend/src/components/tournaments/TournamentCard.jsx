@@ -1,19 +1,11 @@
-// Sources:
-// - React Router Link: https://reactrouter.com/en/main/components/link
-// - Date.toLocaleDateString: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleDateString
-// - Optional chaining (?.): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining
-// - Nullish coalescing (??): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing
-
 import { Link } from 'react-router-dom'
 
-// Formats tournament variant into a readable string, e.g. "Straights · 10s"
 function formatVariant(tournament) {
   if (!tournament) return 'Unknown variant'
   const straights = tournament.variant === 'straights' ? 'Straights' : 'No straights'
   return `${tournament.totalRounds} rounds · ${straights} · ${tournament.timeControl}s`
 }
 
-// Formats an ISO date string into a short human-readable date and time
 function formatDate(dateStr) {
   if (!dateStr) return 'TBD'
   return new Date(dateStr).toLocaleDateString(undefined, {
@@ -22,17 +14,32 @@ function formatDate(dateStr) {
   })
 }
 
-// Card showing a tournament's title, date, variant, and number of signed-up players.
+const STATUS_COLORS = {
+  upcoming:  { bg: 'var(--accent-light)', color: 'var(--accent)' },
+  ongoing:   { bg: '#d4edda', color: '#155724' },
+  finished:  { bg: 'var(--bg-surface-alt)', color: 'var(--text-muted)' },
+  cancelled: { bg: '#f8d7da', color: '#721c24' },
+}
+
 export default function TournamentCard({ tournament }) {
+  const statusStyle = STATUS_COLORS[tournament.status] ?? STATUS_COLORS.finished
+
   return (
     <Link to={`/tournaments/${tournament._id}`} style={{ textDecoration: 'none' }}>
       <div className="card" style={styles.card}>
-        <p style={styles.title}>{tournament.title}</p>
+        <div style={styles.topRow}>
+          <p style={styles.title}>{tournament.title}</p>
+          <span style={{ ...styles.badge, ...statusStyle }}>
+            {tournament.status ?? 'unknown'}
+          </span>
+        </div>
         <p style={styles.meta}>{formatDate(tournament.startDate)}</p>
         <p style={styles.meta}>{formatVariant(tournament)}</p>
-        {/* Show how many players have signed up for this tournament */}
+        {tournament.createdBy?.username && (
+          <p style={styles.author}>by {tournament.createdBy.username}</p>
+        )}
         <p style={styles.players}>
-          {tournament.players?.length ?? 0} player{tournament.players?.length !== 1 ? 's' : ''} signed up
+          {tournament.players?.length ?? 0} / {tournament.maxPlayers ?? '?'} players signed up
         </p>
       </div>
     </Link>
@@ -41,7 +48,13 @@ export default function TournamentCard({ tournament }) {
 
 const styles = {
   card: { display: 'flex', flexDirection: 'column', gap: '0.3rem' },
-  title: { fontWeight: 600, color: 'var(--text-heading)', fontSize: '0.95rem' },
-  meta: { fontSize: '0.8rem', color: 'var(--text-muted)' },
+  topRow: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.5rem' },
+  title: { fontWeight: 600, color: 'var(--text-heading)', fontSize: '0.95rem', margin: 0 },
+  badge: {
+    fontSize: '0.7rem', fontWeight: 600, padding: '0.15rem 0.5rem',
+    borderRadius: '20px', whiteSpace: 'nowrap', textTransform: 'capitalize', flexShrink: 0,
+  },
+  meta: { fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 },
+  author: { fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 },
   players: { fontSize: '0.8rem', color: 'var(--accent)', marginTop: '0.25rem', fontWeight: 500 },
 }

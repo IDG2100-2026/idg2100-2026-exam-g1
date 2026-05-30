@@ -1,9 +1,3 @@
-// Sources:
-// - React useState: https://react.dev/reference/react/useState
-// - React useEffect: https://react.dev/reference/react/useEffect
-// - React Router Link: https://reactrouter.com/en/main/components/link
-// - setInterval / clearInterval: https://developer.mozilla.org/en-US/docs/Web/API/setInterval
-
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -32,6 +26,7 @@ export default function LobbyPage() {
   const [games, setGames]   = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError]   = useState('')
+  const [visible, setVisible] = useState(12)
 
   const [filters, setFilters] = useState({ variant: '', rounds: '', timeControl: '' })
 
@@ -70,10 +65,12 @@ export default function LobbyPage() {
 
   function setFilter(key, value) {
     setFilters(prev => ({ ...prev, [key]: value }))
+    setVisible(12)
   }
 
   function clearFilters() {
     setFilters({ variant: '', rounds: '', timeControl: '' })
+    setVisible(12)
   }
 
   const hasActiveFilters = Object.values(filters).some(v => v !== '')
@@ -132,11 +129,23 @@ export default function LobbyPage() {
       )}
 
       {!loading && games.length > 0 && (
-        <div style={styles.grid}>
-          {games.map(game => (
-            <GameCard key={game._id} game={game} autoJoin />
-          ))}
-        </div>
+        <>
+          <div style={styles.grid}>
+            {games.slice(0, visible).map(game => (
+              <GameCard key={game._id} game={game} autoJoin />
+            ))}
+          </div>
+          {visible < games.length && (
+            <div style={styles.loadMore}>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setVisible(v => v + 12)}
+              >
+                Load more
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
@@ -217,4 +226,5 @@ const styles = {
     fontSize: '0.875rem',
     marginTop: '0.5rem',
   },
+  loadMore: { display: 'flex', justifyContent: 'center', marginTop: '1.5rem' },
 }

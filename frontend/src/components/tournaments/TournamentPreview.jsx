@@ -1,18 +1,15 @@
-// Sources:
-// - Array.prototype.slice: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice
-// - CSS Grid layout: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout
-
+import { Link } from 'react-router-dom'
 import TournamentCard from './TournamentCard'
 
 // Shows a preview of up to 5 upcoming tournaments on the homepage.
 export default function TournamentPreview({ tournaments = [] }) {
-  // Only show the first 5 tournaments
   const visible = tournaments.slice(0, 5)
 
   return (
     <section style={styles.section}>
       <div style={styles.heading}>
         <h2 style={styles.title}>Upcoming Tournaments</h2>
+        <Link to="/tournaments" style={styles.viewAll}>View all tournaments →</Link>
       </div>
 
       {visible.length === 0 ? (
@@ -33,9 +30,11 @@ const styles = {
   heading: {
     display: 'flex',
     alignItems: 'baseline',
+    justifyContent: 'space-between',
     marginBottom: '1rem',
   },
   title: { fontSize: '1.25rem' },
+  viewAll: { fontSize: '0.875rem', color: 'var(--accent)' },
   grid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',

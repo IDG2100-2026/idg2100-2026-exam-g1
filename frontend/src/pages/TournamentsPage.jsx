@@ -11,15 +11,19 @@ const SORT_OPTIONS = [
   { value: 'players', label: 'Players' },
 ]
 
+const PAGE_SIZE = 12
+
 export default function TournamentsPage() {
   const [all, setAll]         = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(false)
+  const [page, setPage]       = useState(1)
   const [error, setError]     = useState('')
 
   const [search, setSearch] = useState('')
   const [sort, setSort]     = useState('date')
 
-  // Debounced search value — only sent to backend after user stops typing for 400ms
   const [debouncedSearch, setDebouncedSearch] = useState('')
 
   useEffect(() => {
@@ -27,23 +31,33 @@ export default function TournamentsPage() {
     return () => clearTimeout(timer)
   }, [search])
 
+  // Reset to page 1 when sort or search changes
+  useEffect(() => {
+    setPage(1)
+    setAll([])
+  }, [sort, debouncedSearch])
+
   useEffect(() => {
     async function fetchAll() {
-      setLoading(true)
+      if (page === 1) setLoading(true)
+      else setLoadingMore(true)
       try {
-        const params = { sort, limit: 100 }
+        const params = { sort, limit: PAGE_SIZE, page }
         if (debouncedSearch.length >= 3) params.search = debouncedSearch
         const res = await listTournaments(params)
-        setAll(res.results ?? [])
+        const results = res.results ?? []
+        setAll(prev => page === 1 ? results : [...prev, ...results])
+        setHasMore(results.length === PAGE_SIZE)
         setError('')
       } catch {
         setError('Failed to load tournaments.')
       } finally {
         setLoading(false)
+        setLoadingMore(false)
       }
     }
     fetchAll()
-  }, [sort, debouncedSearch])
+  }, [sort, debouncedSearch, page])
 
   // Split into active (upcoming/ongoing) and past (finished/cancelled)
   const active = all.filter(t => t.status === 'upcoming' || t.status === 'ongoing')
@@ -125,6 +139,18 @@ export default function TournamentsPage() {
         </section>
       )}
 
+      {hasMore && (
+        <div style={styles.loadMore}>
+          <button
+            className="btn btn-secondary"
+            onClick={() => setPage(p => p + 1)}
+            disabled={loadingMore}
+          >
+            {loadingMore ? 'Loading...' : 'Load more'}
+          </button>
+        </div>
+      )}
+
     </div>
   )
 }
@@ -170,4 +196,5 @@ const styles = {
     gap: '1rem',
   },
   empty: { color: 'var(--text-muted)', marginTop: '2rem' },
+  loadMore: { display: 'flex', justifyContent: 'center', marginTop: '1.5rem', marginBottom: '2rem' },
 }
