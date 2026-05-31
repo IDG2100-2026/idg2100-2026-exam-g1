@@ -50,7 +50,7 @@ export const getAllUsers = async (req, res, next) => {
   if (isBanned) filter.isBanned = isBanned === "true";
 
   const users = await User.find(filter);
-  res.status(200).json(users);
+  res.status(200).json({ results: users });
 };
 
 //-------------------GET ONE USER-------------------
