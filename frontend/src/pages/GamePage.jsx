@@ -6,7 +6,7 @@ import { getGame, joinGame, leaveGame } from "../api/games";
 import { getComments } from "../api/comments";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import ErrorMessage from "../components/ui/ErrorMessage";
-import { io } from "socket.io-client";
+import { io } from "socket.io-client"; // https://socket.io/docs/v4/client-api/
 import GameBoard from "../components/game-board/GameBoard";
 import { playRoll, playHold, playRoundStart, playRoundEnd, playGameEnd } from "../utils/sounds";
 
@@ -109,7 +109,7 @@ export default function GamePage() {
   }, [game?._id]);
 
   useEffect(() => {
-    commentsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    commentsEndRef.current?.scrollIntoView({ behavior: "smooth" }); // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
   }, [comments]);
 
   async function handlePostComment(e) {
@@ -124,7 +124,7 @@ export default function GamePage() {
   }
 
   // Emit the correct socket event for each board action
-  const handleGameAction = useCallback((action, amount) => {
+  const handleGameAction = useCallback((action, amount) => { // https://react.dev/reference/react/useCallback
     const socket = socketRef.current;
     if (!socket) return;
     switch (action) {

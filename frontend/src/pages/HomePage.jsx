@@ -64,7 +64,7 @@ export default function HomePage() {
       setLoading(true)
       setError('')
       try {
-        const [lobbyRes, liveRes, completedRes, tourRes] = await Promise.all([
+        const [lobbyRes, liveRes, completedRes, tourRes] = await Promise.all([ // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all
           listGames({ status: 'waiting', limit: 20 }),
           listGames({ status: 'in_progress', limit: 20 }),
           listGames({ status: 'completed', limit: 10, sort: '-createdAt' }),

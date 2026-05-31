@@ -6,6 +6,7 @@ const axiosInstance = axios.create({
 })
 
 // Attach the access token as a Bearer token on every request.
+// https://axios-http.com/docs/interceptors
 axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
   if (token) config.headers['Authorization'] = `Bearer ${token}`

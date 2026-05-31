@@ -13,14 +13,14 @@ const FACE_DATA = {
   B7: { rank: '7', suit: '♠', red: false },
 }
 
-class DieElement extends HTMLElement {
-  static get observedAttributes() {
+class DieElement extends HTMLElement { // https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements
+  static get observedAttributes() { // https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#responding_to_attribute_changes
     return ['value', 'held', 'disabled', 'index']
   }
 
   constructor() {
     super()
-    this.attachShadow({ mode: 'open' })
+    this.attachShadow({ mode: 'open' }) // https://developer.mozilla.org/en-US/docs/Web/API/Element/attachShadow
     this._onClick = this._onClick.bind(this)
   }
 
@@ -29,9 +29,9 @@ class DieElement extends HTMLElement {
 
   _onClick() {
     if (this.hasAttribute('disabled')) return
-    this.dispatchEvent(new CustomEvent('die-hold', {
+    this.dispatchEvent(new CustomEvent('die-hold', { // https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent
       bubbles: true,
-      composed: true,
+      composed: true, // allows event to cross Shadow DOM boundary
       detail: { index: Number(this.getAttribute('index') ?? 0) },
     }))
   }

@@ -1,6 +1,6 @@
 function ctx() {
   if (!window._sfxCtx) {
-    window._sfxCtx = new (window.AudioContext || window.webkitAudioContext)()
+    window._sfxCtx = new (window.AudioContext || window.webkitAudioContext)() // https://developer.mozilla.org/en-US/docs/Web/API/AudioContext
   }
   return window._sfxCtx
 }
@@ -8,14 +8,14 @@ function ctx() {
 function tone(freq, duration, type = 'sine', vol = 0.25, delay = 0) {
   try {
     const c = ctx()
-    const osc  = c.createOscillator()
-    const gain = c.createGain()
+    const osc  = c.createOscillator() // https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode
+    const gain = c.createGain() // https://developer.mozilla.org/en-US/docs/Web/API/GainNode
     osc.connect(gain)
     gain.connect(c.destination)
     osc.type = type
     osc.frequency.setValueAtTime(freq, c.currentTime + delay)
     gain.gain.setValueAtTime(vol, c.currentTime + delay)
-    gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + delay + duration)
+    gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + delay + duration) // https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/exponentialRampToValueAtTime
     osc.start(c.currentTime + delay)
     osc.stop(c.currentTime + delay + duration + 0.01)
   } catch { /* AudioContext may be blocked until user interaction */ }

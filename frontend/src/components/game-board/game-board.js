@@ -8,10 +8,10 @@ function esc(str) {
     .replace(/"/g, '&quot;')
 }
 
-class GameBoard extends HTMLElement {
+class GameBoard extends HTMLElement { // https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements
   constructor() {
     super()
-    this.attachShadow({ mode: 'open' })
+    this.attachShadow({ mode: 'open' }) // https://developer.mozilla.org/en-US/docs/Web/API/Element/attachShadow
     this._gameData       = null
     this._currentUserId  = ''
     this._socketState    = null
@@ -33,7 +33,7 @@ class GameBoard extends HTMLElement {
   _attachListeners() {
     // die-hold bubbles up through player-element into this shadow root
     this.shadowRoot.addEventListener('die-hold', (e) => {
-      const path = e.composedPath()
+      const path = e.composedPath() // https://developer.mozilla.org/en-US/docs/Web/API/Event/composedPath
       const playerEl = path.find(el => el.tagName === 'PLAYER-ELEMENT')
       if (!playerEl) return
       const players = [...this.shadowRoot.querySelectorAll('player-element')]

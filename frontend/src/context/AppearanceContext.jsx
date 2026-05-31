@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 
 // Holds all visual preferences for component to read or change them
-const AppearanceContext = createContext(null)
+const AppearanceContext = createContext(null) // https://react.dev/reference/react/createContext
 
 // Predefined board background colors the user can pick from
 export const BOARD_COLORS = [
@@ -42,7 +42,7 @@ export function AppearanceProvider({ children }) {
 
   // Keep the --board-color CSS variable in sync with the selected color
   useEffect(() => {
-    document.documentElement.style.setProperty('--board-color', appearance.boardColor)
+    document.documentElement.style.setProperty('--board-color', appearance.boardColor) // https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties
   }, [appearance.boardColor])
 
   // Persist every change to localStorage so preferences remember a page refresh

@@ -1,13 +1,13 @@
 import { createContext, useContext, useState } from 'react'
 
 // Holds the logged-in user and token so any component can access them without prop drilling.
-const AuthContext = createContext(null)
+const AuthContext = createContext(null) // https://react.dev/reference/react/createContext
 
 export function AuthProvider({ children }) {
   // Restore user from localStorage so the session survives a page refresh
   const [currentUser, setCurrentUser] = useState(() => {
     try {
-      const stored = localStorage.getItem('user')
+      const stored = localStorage.getItem('user') // https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage
       return stored ? JSON.parse(stored) : null
     } catch {
       return null

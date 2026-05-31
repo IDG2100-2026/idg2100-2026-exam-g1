@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { io } from 'socket.io-client'
+import { io } from 'socket.io-client' // https://socket.io/docs/v4/client-api/
 import {
   getTournament,
   joinTournament,
@@ -133,7 +133,7 @@ export default function TournamentPage() {
 
   // Auto-scroll comments to bottom
   useEffect(() => {
-    commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' }) // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
   }, [comments])
 
   async function handleJoin() {
