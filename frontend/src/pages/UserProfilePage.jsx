@@ -382,7 +382,7 @@ const styles = {
     cursor: 'pointer',
     boxShadow: 'var(--shadow-sm)',
   },
-  username: { fontSize: '1.5rem', marginBottom: '0.15rem' },
+  username: { fontSize: '1.5rem', marginBottom: '0.15rem', wordBreak: 'break-all' },
   email: { fontSize: '0.875rem', color: 'var(--text-muted)' },
   joined: { fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.1rem' },
   grid: {

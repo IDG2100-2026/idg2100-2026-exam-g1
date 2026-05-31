@@ -130,6 +130,7 @@ export default function RegisterPage() {
               onChange={handleChange}
               required
               minLength={3}
+              maxLength={20}
               placeholder="At least 3 characters"
               autoComplete="username"
             />
@@ -144,6 +145,7 @@ export default function RegisterPage() {
               value={form.email}
               onChange={handleChange}
               required
+              maxLength={100}
               placeholder="you@example.com"
               autoComplete="email"
             />
