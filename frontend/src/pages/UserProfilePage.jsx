@@ -1,13 +1,3 @@
-// Sources:
-// - React useState: https://react.dev/reference/react/useState
-// - React useEffect: https://react.dev/reference/react/useEffect
-// - React Router useParams: https://reactrouter.com/en/main/hooks/use-params
-// - React Router Link: https://reactrouter.com/en/main/components/link
-// - Date arithmetic (30-day window): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
-// - Date.toLocaleDateString: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleDateString
-// - Optional chaining (?.): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining
-// - CSS Grid layout: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout
-
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -30,7 +20,6 @@ function formatDate(dateStr) {
 }
 
 // Counts wins and losses from the last 30 days using the recentGames array on the profile
-// Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
 function lastMonthStats(recentGames, userId) {
   const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
   const recent = (recentGames ?? []).filter(g =>

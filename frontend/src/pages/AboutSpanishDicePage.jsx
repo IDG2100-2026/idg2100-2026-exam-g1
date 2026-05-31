@@ -1,7 +1,3 @@
-// Sources:
-// - Array.prototype.map (rendering lists): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
-// - CSS Flexbox layout: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout
-
 export default function AboutSpanishDicePage() {
   return (
     <div className="container" style={styles.page}>

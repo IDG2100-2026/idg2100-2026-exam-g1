@@ -1,8 +1,3 @@
-// Sources:
-// - React Router Link: https://reactrouter.com/en/main/components/link
-// - Array.prototype.slice: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice
-// - CSS Grid layout: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout
-
 import { Link } from 'react-router-dom'
 import GameCard from './GameCard'
 

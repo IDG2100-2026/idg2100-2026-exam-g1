@@ -1,6 +1,3 @@
-// Sources:
-// - Array.prototype.map (rendering sections): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
-
 export default function TermsPage() {
   return (
     <div className="container" style={styles.page}>

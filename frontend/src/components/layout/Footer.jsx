@@ -1,6 +1,3 @@
-// Sources:
-// - React Router Link: https://reactrouter.com/en/main/components/link
-
 import { Link } from 'react-router-dom'
 
 export default function Footer() {

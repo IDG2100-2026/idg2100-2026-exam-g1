@@ -1,10 +1,3 @@
-// Sources:
-// - React createContext: https://react.dev/reference/react/createContext
-// - React useContext: https://react.dev/reference/react/useContext
-// - React useState: https://react.dev/reference/react/useState
-// - localStorage API: https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage
-// - JSON.parse / stringify: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON
-
 import { createContext, useContext, useState } from 'react'
 
 // Holds the logged-in user and token so any component can access them without prop drilling.
@@ -12,7 +5,6 @@ const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   // Restore user from localStorage so the session survives a page refresh
-  // Source: https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const stored = localStorage.getItem('user')

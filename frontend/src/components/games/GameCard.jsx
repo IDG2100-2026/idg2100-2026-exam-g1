@@ -1,8 +1,3 @@
-// Sources:
-// - React Router useNavigate: https://reactrouter.com/en/main/hooks/use-navigate
-// - ARIA role="button": https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/button_role
-// - Keyboard accessibility (onKeyDown): https://developer.mozilla.org/en-US/docs/Web/API/Element/keydown_event
-
 import { useNavigate } from 'react-router-dom'
 
 // Formats the game variant into a readable string, e.g. "Best of 3 · Straights · 10s"
@@ -33,7 +28,6 @@ export default function GameCard({ game, autoJoin = false }) {
   const avg = averageElo(game.players)
 
   // role="button" + tabIndex make the div keyboard-navigable like a real button
-  // Source: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/button_role
   return (
     <div className="card" style={styles.card} onClick={handleClick} role="button" tabIndex={0}
       onKeyDown={e => e.key === 'Enter' && handleClick()}

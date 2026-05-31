@@ -1,8 +1,3 @@
-// Sources:
-// - React useEffect: https://react.dev/reference/react/useEffect
-// - React Router useParams: https://reactrouter.com/en/main/hooks/use-params
-// - React Router Link: https://reactrouter.com/en/main/components/link
-
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { verifyEmail } from '../api/users'

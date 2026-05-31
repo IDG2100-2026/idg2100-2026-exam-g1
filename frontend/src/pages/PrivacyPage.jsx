@@ -1,7 +1,3 @@
-// Sources:
-// - Array.prototype.map (rendering sections): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
-// - GDPR reference (data rights section):     https://gdpr-info.eu/art-17-gdpr/
-
 export default function PrivacyPage() {
   return (
     <div className="container" style={styles.page}>

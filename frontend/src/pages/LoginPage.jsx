@@ -1,11 +1,3 @@
-// Sources:
-// - React useState: https://react.dev/reference/react/useState
-// - React Router Link: https://reactrouter.com/en/main/components/link
-// - React Router useNavigate: https://reactrouter.com/en/main/hooks/use-navigate
-// - HTML input type="email": https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/email
-// - HTML input type="password": https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/password
-// - HTML autocomplete attribute: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete
-
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";

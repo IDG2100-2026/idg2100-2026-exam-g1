@@ -1,7 +1,3 @@
-// Sources:
-// - React Router Link: https://reactrouter.com/en/main/components/link
-// - React Router useNavigate: https://reactrouter.com/en/main/hooks/use-navigate
-
 import { Link, useNavigate } from 'react-router-dom'
 
 export default function NotFoundPage() {

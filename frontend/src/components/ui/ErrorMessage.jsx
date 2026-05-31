@@ -1,8 +1,3 @@
-// Sources:
-// - React conditional rendering: https://react.dev/learn/conditional-rendering
-// - CSS custom properties: https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties
-
-// Stub — will be styled in Step 4
 export default function ErrorMessage({ message }) {
   if (!message) return null
   return (

@@ -1,9 +1,3 @@
-// Sources:
-// - CSS @keyframes animation: https://developer.mozilla.org/en-US/docs/Web/CSS/@keyframes
-// - CSS animation property: https://developer.mozilla.org/en-US/docs/Web/CSS/animation
-// - Inline <style> in React JSX: https://react.dev/reference/react-dom/components/style
-
-// Stub — will be styled in Step 4
 export default function LoadingSpinner({ message = 'Loading...' }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', padding: '2rem', color: 'var(--text-muted)' }}>

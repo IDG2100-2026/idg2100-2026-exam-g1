@@ -1,7 +1,3 @@
-// Sources:
-// - Array.prototype.some: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
-// - CSS Grid layout: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout
-
 import GameCard from './GameCard'
 
 // Shows up to 5 games sorted by highest average ELO.

@@ -1,11 +1,3 @@
-// Sources:
-// - React useState: https://react.dev/reference/react/useState
-// - React useEffect: https://react.dev/reference/react/useEffect
-// - React Router useParams: https://reactrouter.com/en/main/hooks/use-params
-// - React Router Link: https://reactrouter.com/en/main/components/link
-// - Date.toLocaleDateString: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleDateString
-// - CSS Grid layout: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout
-
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getProfile } from '../api/users'

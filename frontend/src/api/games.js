@@ -1,7 +1,3 @@
-// Sources:
-// - axios request methods (get, post): https://axios-http.com/docs/api_intro
-// - Passing query params with axios: https://axios-http.com/docs/req_config
-
 import axiosInstance from './axiosInstance'
 
 // Fetch a list of matches. Accepts filters like { status, limit, sort } as params.

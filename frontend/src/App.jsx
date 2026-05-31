@@ -1,9 +1,3 @@
-// Sources:
-// - React Router BrowserRouter: https://reactrouter.com/en/main/router-components/browser-router
-// - React Router Routes / Route: https://reactrouter.com/en/main/components/routes
-// - React Router Outlet: https://reactrouter.com/en/main/components/outlet
-// - React Router Link: https://reactrouter.com/en/main/components/link
-
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { AppearanceProvider } from './context/AppearanceContext'

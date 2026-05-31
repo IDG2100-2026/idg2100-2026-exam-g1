@@ -55,7 +55,6 @@ export async function updateProfile(id, data) {
 }
 
 // Upload a profile picture. Sends the file as multipart/form-data.
-// Source: https://developer.mozilla.org/en-US/docs/Web/API/FormData
 export async function uploadAvatar(id, file) {
   const formData = new FormData()
   formData.append('profilePicture', file)

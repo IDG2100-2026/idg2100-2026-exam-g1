@@ -1,7 +1,3 @@
-// Sources:
-// - React useState: https://react.dev/reference/react/useState
-// - React Router Link: https://reactrouter.com/en/main/components/link
-
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { resendVerification } from '../api/users'

@@ -43,10 +43,8 @@ export default function Header() {
   const navigate = useNavigate()
 
   // Close the appearance panel when the user clicks anywhere outside it
-  // Source: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
   useEffect(() => {
     function handleClickOutside(e) {
-      // Source: https://developer.mozilla.org/en-US/docs/Web/API/Node/contains
       if (panelRef.current && !panelRef.current.contains(e.target)) {
         setPanelOpen(false)
       }

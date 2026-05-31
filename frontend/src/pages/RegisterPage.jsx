@@ -1,20 +1,9 @@
-// Sources:
-// - React useState: https://react.dev/reference/react/useState
-// - React Router Link: https://reactrouter.com/en/main/components/link
-// - React Router useNavigate: https://reactrouter.com/en/main/hooks/use-navigate
-// - Date object (age calculation): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
-// - HTML input type="date": https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date
-// - HTML input max attribute: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#max
-// - HTML autocomplete attribute: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete
-// - Date.toISOString: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { register as registerApi } from "../api/users";
 import ErrorMessage from "../components/ui/ErrorMessage";
 
 // Calculates the user's current age from a date-of-birth string
-// Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
 function calcAge(dob) {
   const today = new Date();
   const birth = new Date(dob);

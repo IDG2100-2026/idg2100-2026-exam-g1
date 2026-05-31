@@ -1,7 +1,3 @@
-// Sources:
-// - Array.prototype.map (rendering lists): https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
-// - CSS Grid layout: https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout
-
 export default function AboutUsPage() {
   return (
     <div className="container" style={styles.page}>
@@ -56,9 +52,8 @@ export default function AboutUsPage() {
 }
 
 const TEAM = [
-  { name: 'Stian Gabrielsen', role: 'Co-founder & CEO' },
-  { name: 'Simon Sandvik Lee', role: 'Fullstack Developer' },
-  { name: 'Melissa Schoeckel', role: 'Designer' },
+  { name: 'Stian Gabrielsen', role: 'Frontend Developer' },
+  { name: 'Jørgen Halsa', role: 'Backend Developer' },
 ]
 
 const styles = {

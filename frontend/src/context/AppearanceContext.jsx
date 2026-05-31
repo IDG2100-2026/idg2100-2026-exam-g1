@@ -1,12 +1,3 @@
-// Sources:
-// - React createContext: https://react.dev/reference/react/createContext
-// - React useContext: https://react.dev/reference/react/useContext
-// - React useState: https://react.dev/reference/react/useState
-// - React useEffect: https://react.dev/reference/react/useEffect
-// - localStorage API: https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage
-// - Element.setAttribute (data-theme): https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute
-// - CSSStyleDeclaration.setProperty: https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleDeclaration/setProperty
-
 import { createContext, useContext, useState, useEffect } from 'react'
 
 // Holds all visual preferences for component to read or change them
@@ -45,13 +36,11 @@ export function AppearanceProvider({ children }) {
   const [appearance, setAppearance] = useState(loadFromStorage)
 
   // Keep the data-theme attribute on <html> in sync so CSS variables switch correctly
-  // Source: https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', appearance.theme)
   }, [appearance.theme])
 
   // Keep the --board-color CSS variable in sync with the selected color
-  // Source: https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleDeclaration/setProperty
   useEffect(() => {
     document.documentElement.style.setProperty('--board-color', appearance.boardColor)
   }, [appearance.boardColor])
