@@ -1,12 +1,5 @@
-// Sources:
-// - React useState: https://react.dev/reference/react/useState
-// - React Router useNavigate: https://reactrouter.com/en/main/hooks/use-navigate
-// - React Router Link: https://reactrouter.com/en/main/components/link
-// - HTML radio input: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/radio
-// - HTML checkbox input: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/checkbox
-
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { createGame } from '../api/games'
 import ErrorMessage from '../components/ui/ErrorMessage'
@@ -55,6 +48,8 @@ function RadioGroup({ label, options, value, onChange }) {
 export default function CreateGamePage() {
   const { isLoggedIn } = useAuth()
   const navigate = useNavigate()
+
+  if (!isLoggedIn) return <Navigate to="/login" replace />
 
   const [rounds, setRounds]           = useState(3)
   const [variant, setVariant]         = useState('standard')

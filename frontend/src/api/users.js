@@ -1,8 +1,3 @@
-// Sources:
-// - axios request methods (get, post, put): https://axios-http.com/docs/api_intro
-// - FormData (multipart file upload): https://developer.mozilla.org/en-US/docs/Web/API/FormData
-// - FormData.append: https://developer.mozilla.org/en-US/docs/Web/API/FormData/append
-
 import axiosInstance from './axiosInstance'
 
 // Register a new user account.
@@ -41,6 +36,12 @@ export async function resendVerification(data) {
   return res.data
 }
 
+// List all users (admin only). Accepts filters: search, role, isBanned.
+export async function listUsers(params) {
+  const res = await axiosInstance.get('/users', { params })
+  return res.data
+}
+
 // Fetch a user's profile.
 export async function getProfile(id) {
   const res = await axiosInstance.get(`/users/${id}`)
@@ -73,5 +74,17 @@ export async function updatePassword(id, data) {
 // Delete a user account.
 export async function deleteUser(id) {
   const res = await axiosInstance.delete(`/users/${id}`)
+  return res.data
+}
+
+// Request a password reset email. Always returns the same message for security.
+export async function forgotPassword(email) {
+  const res = await axiosInstance.post('/auth/forgot-password', { email })
+  return res.data
+}
+
+// Reset password using the code from the reset email.
+export async function resetPassword(code, password) {
+  const res = await axiosInstance.post(`/auth/reset-password/${code}`, { password })
   return res.data
 }

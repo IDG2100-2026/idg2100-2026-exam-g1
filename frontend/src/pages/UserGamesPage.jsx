@@ -47,8 +47,8 @@ export default function UserGamesPage() {
       setError('')
       try {
         const res = await listGames({ userId: id, page, limit: 20 })
-        setGames(res ?? [])
-        setPagination(null)
+        setGames(res.results ?? [])
+        setPagination(res)
       } catch {
         setError('Failed to load games.')
       } finally {
