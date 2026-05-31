@@ -67,7 +67,7 @@ export default function HomePage() {
         const [lobbyRes, liveRes, completedRes, tourRes] = await Promise.all([ // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all
           listGames({ status: 'waiting', limit: 20 }),
           listGames({ status: 'in_progress', limit: 20 }),
-          listGames({ status: 'completed', limit: 10, sort: '-createdAt' }),
+          listGames({ status: 'finished', limit: 10, sort: '-createdAt' }),
           listTournaments({ status: 'upcoming', limit: 5, sort: 'startDate' }),
         ])
 

@@ -74,8 +74,8 @@ export default function UserGamesPage() {
               const won = g.winner?._id?.toString() === id || g.winner?.toString() === id
               return (
                 <Link key={g._id} to={`/games/${g._id}`} style={styles.row}>
-                  <span style={{ ...styles.result, color: g.status === 'completed' ? (won ? 'var(--success)' : 'var(--error)') : 'var(--text-muted)' }}>
-                    {g.status === 'completed' ? (won ? 'Win' : 'Loss') : g.status}
+                  <span style={{ ...styles.result, color: g.status === 'finished' ? (won ? 'var(--success)' : 'var(--error)') : 'var(--text-muted)' }}>
+                    {g.status === 'finished' ? (won ? 'Win' : 'Loss') : g.status}
                   </span>
                   <span style={styles.variant}>{formatVariant(g)}</span>
                   <span style={styles.players}>

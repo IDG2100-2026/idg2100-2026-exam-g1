@@ -23,7 +23,7 @@ function formatDate(dateStr) {
 function lastMonthStats(recentGames, userId) {
   const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
   const recent = (recentGames ?? []).filter(g =>
-    new Date(g.createdAt) >= oneMonthAgo && g.status === 'completed'
+    new Date(g.createdAt) >= oneMonthAgo && g.status === 'finished'
   )
   const wins   = recent.filter(g => g.winner?._id?.toString() === userId || g.winner?.toString() === userId).length
   const losses = recent.length - wins
@@ -333,7 +333,7 @@ export default function UserProfilePage() {
               return (
                 <Link key={g._id} to={`/games/${g._id}`} className="game-row">
                   <span style={{ ...styles.gameResult, color: won ? 'var(--success)' : 'var(--error)' }}>
-                    {g.status === 'completed' ? (won ? 'Win' : 'Loss') : g.status}
+                    {g.status === 'finished' ? (won ? 'Win' : 'Loss') : g.status}
                   </span>
                   <span style={styles.gameVariant}>{formatVariant(g)}</span>
                   <span style={styles.gamePlayers}>
