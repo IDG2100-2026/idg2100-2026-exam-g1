@@ -49,7 +49,7 @@ export default function GameCard({ game, autoJoin = false }) {
       )}
 
       {/* Badge shown only for games currently in progress */}
-      {game.status === 'in_progress' && (
+      {game.status === 'ongoing' && (
         <span style={styles.badge}>Live</span>
       )}
     </div>

@@ -113,7 +113,7 @@ export default function TournamentPage() {
 
     async function fetchOngoingGames() {
       try {
-        const res = await listGames({ tournament: id, status: 'in_progress' })
+        const res = await listGames({ tournament: id, status: 'ongoing' })
         const games = res.results ?? []
         setOngoingGames(games)
 

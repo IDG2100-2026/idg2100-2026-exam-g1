@@ -4,7 +4,7 @@ import GameCard from './GameCard'
 // If no live games exist, falls back to the most recent completed games.
 export default function TopGames({ games = [] }) {
   // Check if any of the games are currently live to show the correct subtitle
-  const hasLive = games.some(g => g.status === 'in_progress')
+  const hasLive = games.some(g => g.status === 'ongoing')
 
   return (
     <section style={styles.section}>
