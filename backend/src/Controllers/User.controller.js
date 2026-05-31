@@ -40,6 +40,7 @@ export const updatePasswordRules = [
 ];
 
 //-------------------GET ALL USERS-------------------
+//supports: ?search=string, ?role=user|admin, ?isBanned=true|false
 export const getAllUsers = async (req, res, next) => {
   const { search, role, isBanned } = req.query;
   const filter = {};
@@ -128,6 +129,7 @@ export const deleteUser = async (req, res, next) => {
 };
 
 //-------------------GET USER GAMES-------------------
+// supports: ?page=1, ?limit=10
 export const getUserGames = async (req, res, next) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;

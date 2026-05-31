@@ -8,13 +8,14 @@ const router = Router();
 
 router.get("/", auth, requireAdmin, userController.getAllUsers); //Get all users - admin only
 router.get("/:id", userController.getUser); //Get one user
+//Update user
 router.put(
   "/:id",
   auth,
   userController.updateUserRules,
   validateRequest,
   userController.updateUser,
-); //Update user
+);
 //Update profile pic
 router.put(
   "/:id/profilepic",

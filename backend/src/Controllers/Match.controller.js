@@ -35,6 +35,7 @@ export const createMatchRules = [
 
 //----------------GET ALL MATCHES----------------
 //mostly from https://www.youtube.com/watch?v=ZX3qt0UWifc
+//supports: ?variant=standard|straights, ?rounds=3|5|7, ?timeControl=10|30|90, ?status=waiting|ongoing|finished, ?page=1, ?limit=10
 export const getAllMatches = async (req, res, next) => {
   const { variant, rounds, status, timeControl } = req.query;
   const page = parseInt(req.query.page) || 1;
