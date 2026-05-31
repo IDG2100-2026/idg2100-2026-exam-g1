@@ -1,17 +1,17 @@
-const FACE_DATA = {
-  RA: { rank: 'A', suit: '♥', red: true },
-  RK: { rank: 'K', suit: '♥', red: true },
-  RQ: { rank: 'Q', suit: '♥', red: true },
-  RJ: { rank: 'J', suit: '♥', red: true },
-  R8: { rank: '8', suit: '♥', red: true },
-  R7: { rank: '7', suit: '♥', red: true },
-  BA: { rank: 'A', suit: '♠', red: false },
-  BK: { rank: 'K', suit: '♠', red: false },
-  BQ: { rank: 'Q', suit: '♠', red: false },
-  BJ: { rank: 'J', suit: '♠', red: false },
-  B8: { rank: '8', suit: '♠', red: false },
-  B7: { rank: '7', suit: '♠', red: false },
-}
+import imgRA from '../../assets/RA.png'
+import imgRK from '../../assets/RK.png'
+import imgRQ from '../../assets/RQ.png'
+import imgRJ from '../../assets/RJ.png'
+import imgR8 from '../../assets/R8.png'
+import imgR7 from '../../assets/R7.png'
+import imgBA from '../../assets/BA.png'
+import imgBK from '../../assets/BK.png'
+import imgBQ from '../../assets/BQ.png'
+import imgBJ from '../../assets/BJ.png'
+import imgB8 from '../../assets/B8.png'
+import imgB7 from '../../assets/B7.png'
+
+const IMAGES = { RA: imgRA, RK: imgRK, RQ: imgRQ, RJ: imgRJ, R8: imgR8, R7: imgR7, BA: imgBA, BK: imgBK, BQ: imgBQ, BJ: imgBJ, B8: imgB8, B7: imgB7 }
 
 class DieElement extends HTMLElement { // https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements
   static get observedAttributes() { // https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#responding_to_attribute_changes
@@ -40,55 +40,38 @@ class DieElement extends HTMLElement { // https://developer.mozilla.org/en-US/do
     const face = this.getAttribute('value') ?? ''
     const held = this.hasAttribute('held')
     const disabled = this.hasAttribute('disabled')
-    const data = FACE_DATA[face]
+    const img = IMAGES[face]
 
-    let inner
-    if (!data) {
-      inner = `<span class="unknown">?</span>`
-    } else {
-      const color = data.red ? '#c0392b' : '#1a1a1a'
-      inner = `
-        <span class="corner tl" style="color:${color}">${data.rank}</span>
-        <span class="suit" style="color:${color}">${data.suit}</span>
-        <span class="corner br" style="color:${color}">${data.rank}</span>
-      `
-    }
+    const inner = img
+      ? `<img src="${img}" alt="${face}" draggable="false" />`
+      : `<span class="unknown">?</span>`
 
     this.shadowRoot.innerHTML = `
       <style>
         :host { display: inline-block; user-select: none; }
         .die {
-          width: 52px; height: 52px;
-          background: ${held ? '#fff8dc' : data ? '#fff' : '#555'};
-          border: 2.5px solid ${held ? '#c9a800' : data ? '#ccc' : '#666'};
+          width: 64px; height: 64px;
+          background: ${held ? '#fff8dc' : img ? '#fff' : '#555'};
+          border: 2.5px solid ${held ? '#c9a800' : img ? '#ccc' : '#666'};
           box-shadow: ${held ? '0 0 0 2px #c9a800' : 'none'};
           border-radius: 8px;
           position: relative;
           cursor: ${disabled ? 'default' : 'pointer'};
           opacity: ${disabled ? 0.45 : 1};
-          transition: transform 0.1s, background 0.15s, border-color 0.15s;
+          transition: transform 0.1s, box-shadow 0.15s, border-color 0.15s;
           box-sizing: border-box;
+          overflow: hidden;
+          display: flex; align-items: center; justify-content: center;
         }
         .die:hover { transform: ${disabled ? 'none' : 'scale(1.08)'}; }
-        .corner {
-          position: absolute;
-          font-size: 0.65rem;
-          font-weight: 800;
-          line-height: 1;
-        }
-        .tl { top: 3px; left: 4px; }
-        .br { bottom: 3px; right: 4px; transform: rotate(180deg); }
-        .suit {
-          position: absolute;
-          top: 50%; left: 50%;
-          transform: translate(-50%, -50%);
-          font-size: 1.4rem;
-          line-height: 1;
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+          border-radius: 5px;
         }
         .unknown {
-          position: absolute;
-          top: 50%; left: 50%;
-          transform: translate(-50%, -50%);
           font-size: 1.1rem;
           color: #aaa;
           font-weight: 700;
