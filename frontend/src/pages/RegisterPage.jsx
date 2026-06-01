@@ -131,7 +131,7 @@ export default function RegisterPage() {
               required
               minLength={3}
               maxLength={20}
-              placeholder="At least 3 characters"
+              placeholder="3–20 characters"
               autoComplete="username"
             />
           </div>
