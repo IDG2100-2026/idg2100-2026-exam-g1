@@ -6,9 +6,8 @@ import { validateRequest } from "../Middleware/Validate.js";
 
 const router = Router();
 
-router.get("/", auth, requireAdmin, userController.getAllUsers); //Get all users - admin only
-router.get("/:id", userController.getUser); //Get one user
-//Update user
+router.get("/", auth, requireAdmin, userController.getAllUsers); 
+router.get("/:id", userController.getUser); 
 router.put(
   "/:id",
   auth,
@@ -16,7 +15,6 @@ router.put(
   validateRequest,
   userController.updateUser,
 );
-//Update profile pic
 router.put(
   "/:id/profilepic",
   auth,
@@ -30,7 +28,7 @@ router.put(
   validateRequest,
   userController.updatePassword,
 );
-router.delete("/:id", auth, userController.deleteUser); //Delete user
+router.delete("/:id", auth, userController.deleteUser);
 router.get("/:id/games", userController.getUserGames);
 
 export default router;

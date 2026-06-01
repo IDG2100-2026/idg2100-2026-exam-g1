@@ -6,16 +6,12 @@ import { validateRequest } from "../Middleware/Validate.js";
 
 const router = Router();
 
-//public
-router.get("/", tournamentController.getAllTournaments); //Get all tournaments
-router.get("/:id", tournamentController.getTournament); //Get single tournament
+router.get("/", tournamentController.getAllTournaments); 
+router.get("/:id", tournamentController.getTournament); 
 
-//Auth required
-router.post("/:id/join", auth, tournamentController.joinTournament); //Join tournament
-router.post("/:id/leave", auth, tournamentController.leaveTournament); //Leave tournament
+router.post("/:id/join", auth, tournamentController.joinTournament); 
+router.post("/:id/leave", auth, tournamentController.leaveTournament); 
 
-//Admin only
-//Create tournament
 router.post(
   "/",
   auth,
@@ -26,7 +22,6 @@ router.post(
   tournamentController.createTournament,
 );
 
-//Start tournament
 router.post(
   "/:id/start",
   auth,
@@ -34,7 +29,6 @@ router.post(
   tournamentController.startTournament,
 );
 
-//Update tournament
 router.put(
   "/:id",
   auth,
@@ -43,7 +37,6 @@ router.put(
   validateRequest,
   tournamentController.updateTournament,
 );
-//Update trophy
 router.put(
   "/:id/trophy",
   auth,
@@ -51,14 +44,12 @@ router.put(
   uploadTrophy.single("trophyImage"),
   tournamentController.updateTrophy,
 );
-//Cancel tournament
 router.put(
   "/:id/cancel",
   auth,
   requireAdmin,
   tournamentController.cancelTournament,
 );
-//Delete tournament
 router.delete(
   "/:id",
   auth,

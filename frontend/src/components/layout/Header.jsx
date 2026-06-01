@@ -4,7 +4,6 @@ import { useAuth } from '../../context/AuthContext'
 import { useAppearance } from '../../context/AppearanceContext'
 import { updateProfile } from '../../api/users'
 
-// Small circular button used to pick a board background color in the appearance panel.
 function ColorSwatch({ color, active, onClick }) {
   return (
     <button
@@ -14,7 +13,6 @@ function ColorSwatch({ color, active, onClick }) {
         width: 26, height: 26,
         borderRadius: '50%',
         background: color.value,
-        // Highlighted border when this color is the currently selected one
         border: active ? '3px solid var(--accent)' : '2px solid var(--border)',
         cursor: 'pointer',
         flexShrink: 0,
@@ -33,16 +31,12 @@ export default function Header() {
     BOARD_COLORS,
   } = useAppearance()
 
-  // Controls whether the desktop appearance dropdown is open
   const [panelOpen, setPanelOpen] = useState(false)
-  // Controls whether the mobile drawer is open
   const [menuOpen, setMenuOpen] = useState(false)
 
-  // Ref on the appearance panel so we can detect clicks outside it
   const panelRef = useRef(null)
   const navigate = useNavigate()
 
-  // Close the appearance panel when the user clicks anywhere outside it
   useEffect(() => {
     function handleClickOutside(e) {
       if (panelRef.current && !panelRef.current.contains(e.target)) {
@@ -53,11 +47,8 @@ export default function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [panelOpen])
 
-  // Called by mobile nav links to close the drawer after navigation
   function closeMenu() { setMenuOpen(false) }
 
-  // Saves a single appearance field to the backend for logged-in users.
-  // Uses dot notation (e.g. "appearance.theme") so only that field is updated.
   async function syncToBackend(patch) {
     if (!isLoggedIn) return
     try {
@@ -68,40 +59,34 @@ export default function Header() {
     } catch { /* non-critical */ }
   }
 
-  // Toggle between light and dark theme, then persist the change
   function handleTheme() {
     const next = theme === 'light' ? 'dark' : 'light'
     setTheme(next)
     syncToBackend({ theme: next })
   }
 
-  // Change the game board background color, then persist
   function handleBoardColor(color) {
     setBoardColor(color)
     syncToBackend({ boardColor: color })
   }
 
-  // Toggle sound on/off, then persist
   function handleSound() {
     const next = !soundOn
     setSoundOn(next)
     syncToBackend({ soundOn: next })
   }
 
-  // Update how many lobby games are shown on the homepage, then persist
   function handleLobbyCount(e) {
     setLobbyCount(e.target.value)
     syncToBackend({ lobbyCount: Number(e.target.value) })
   }
 
-  // Log the user out, close the mobile menu, and go to the homepage
   function handleLogout() {
     logout()
     setMenuOpen(false)
     navigate('/')
   }
 
-  // Profile picture: show uploaded image if available, otherwise a letter avatar
   const avatarEl = currentUser?.profilePicture ? (
     <img
       src={`${import.meta.env.VITE_API_URL?.replace('/api', '')}${currentUser.profilePicture}`}
@@ -115,12 +100,10 @@ export default function Header() {
   return (
     <header style={styles.header}>
 
-      {/* Desktop / main bar */}
       <div className="container header-inner">
 
         <Link to="/" className="header-logo">Spanish Poker Dice</Link>
 
-        {/* Desktop navigation links */}
         <nav className="header-nav">
           <NavLink to="/lobby"       className={({ isActive }) => 'header-nav-link' + (isActive ? ' active' : '')}>Lobby</NavLink>
           <NavLink to="/tournaments" className={({ isActive }) => 'header-nav-link' + (isActive ? ' active' : '')}>Tournaments</NavLink>
@@ -130,10 +113,8 @@ export default function Header() {
           )}
         </nav>
 
-        {/* Desktop appearance button + greeting */}
         <div className="header-right">
 
-          {/* Appearance dropdown — positioned relative to this wrapper */}
           <div ref={panelRef} style={{ position: 'relative' }}>
             <button
               className="btn btn-secondary"
@@ -142,7 +123,6 @@ export default function Header() {
             > Appearance
             </button>
 
-            {/* Dropdown panel — only rendered when panelOpen is true */}
             {panelOpen && (
               <div style={styles.panel}>
                 <p style={styles.panelHeading}>Appearance</p>
@@ -175,7 +155,6 @@ export default function Header() {
             )}
           </div>
 
-          {/* Greeting: show username + profile link + logout for logged-in users, or login/register links */}
           {isLoggedIn ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Link to={`/profile/${currentUser._id}`} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
@@ -194,7 +173,6 @@ export default function Header() {
           )}
         </div>
 
-        {/* Hamburger button — hidden on desktop, shown on mobile via CSS */}
         <button
           className="header-toggle"
           onClick={() => setMenuOpen(o => !o)}
@@ -204,10 +182,8 @@ export default function Header() {
         </button>
       </div>
 
-      {/* Mobile drawer — slides open when menuOpen is true  */}
       <div className={`header-mobile${menuOpen ? ' open' : ''}`}>
 
-        {/* Mobile navigation links — close the drawer on click */}
         <nav className="header-mobile-nav">
           <NavLink to="/lobby"       onClick={closeMenu} className={({ isActive }) => isActive ? 'active' : ''}>Lobby</NavLink>
           <NavLink to="/tournaments" onClick={closeMenu} className={({ isActive }) => isActive ? 'active' : ''}>Tournaments</NavLink>
@@ -219,7 +195,6 @@ export default function Header() {
 
         <hr className="header-mobile-divider" />
 
-        {/* Appearance controls shown inline inside the mobile drawer */}
         <div className="header-mobile-appearance">
           <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-heading)' }}>Appearance</p>
           <div className="header-mobile-appearance-row">
@@ -251,7 +226,6 @@ export default function Header() {
 
         <hr className="header-mobile-divider" />
 
-        {/* Mobile greeting — same logic as desktop but inside the drawer */}
         <div className="header-mobile-greeting">
           {isLoggedIn ? (
             <>

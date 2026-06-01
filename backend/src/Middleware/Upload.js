@@ -2,7 +2,6 @@ import multer from "multer";
 import path from "path";
 import AppError from "../Utils/AppError.js";
 
-//Allowed file types
 const imageTypes = ["image/jpeg", "image/png", "image/webp"];
 
 const fileFilter = (req, file, cb) => {
@@ -13,24 +12,20 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-//Profile picture storage
 const profileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/profiles/");
   },
-  //unique name
   filename: (req, file, cb) => {
     const uniqueName = `${Date.now()}-${file.originalname}`;
     cb(null, uniqueName);
   },
 });
 
-//Trophy image storage
 const trophyStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/trophies/");
   },
-  //Unique name
   filename: (req, file, cb) => {
     const uniqueName = `${Date.now()}-${file.originalname}`;
     cb(null, uniqueName);
@@ -40,11 +35,11 @@ const trophyStorage = multer.diskStorage({
 export const uploadProfile = multer({
   storage: profileStorage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }, //max 5 mb
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 export const uploadTrophy = multer({
   storage: trophyStorage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }, //max 5 mb
+  limits: { fileSize: 5 * 1024 * 1024 },
 });

@@ -3,8 +3,6 @@ import { Link, useParams } from 'react-router-dom'
 import { verifyEmail } from '../api/users'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 
-// Handles the /verify/:code route from the email verification link.
-// Calls the backend with the code and shows success or failure.
 export default function VerifyEmailPage() {
   const { code } = useParams()
   const [status, setStatus] = useState('loading')

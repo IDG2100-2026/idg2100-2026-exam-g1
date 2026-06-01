@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 import TournamentCard from './TournamentCard'
 
-// Shows a preview of up to 5 upcoming tournaments on the homepage.
 export default function TournamentPreview({ tournaments = [] }) {
   const visible = tournaments.slice(0, 5)
 

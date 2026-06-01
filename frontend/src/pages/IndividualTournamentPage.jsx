@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { io } from 'socket.io-client' // https://socket.io/docs/v4/client-api/
+import { io } from 'socket.io-client'
 import {
   getTournament,
   joinTournament,
@@ -34,7 +34,6 @@ function formatVariant(t) {
   return `${straights} · ${t.totalRounds} rounds · ${t.timeControl}s`
 }
 
-// Returns a live countdown string "Xd Xh Xm Xs" from now until a target date
 function calcCountdown(targetDate) {
   const diff = new Date(targetDate) - Date.now()
   if (diff <= 0) return 'Starting now'
@@ -87,7 +86,6 @@ export default function TournamentPage() {
   useEffect(() => {
     fetchTournament()
 
-    // Load existing comments via REST, then keep live via WebSocket
     getComments('tournament', id)
       .then(res => setComments(res ?? []))
       .catch(() => {})
@@ -99,7 +97,6 @@ export default function TournamentPage() {
     return () => socket.disconnect()
   }, [id])
 
-  // Live countdown ticker for upcoming tournaments
   useEffect(() => {
     if (!tournament?.startDate || tournament.status !== 'upcoming') return
     setCountdown(calcCountdown(tournament.startDate))
@@ -107,7 +104,6 @@ export default function TournamentPage() {
     return () => clearInterval(interval)
   }, [tournament?.startDate, tournament?.status])
 
-  // Fetch ongoing games when tournament is running; auto-redirect joined players to their game
   useEffect(() => {
     if (tournament?.status !== 'ongoing') return
 
@@ -131,9 +127,8 @@ export default function TournamentPage() {
     return () => clearInterval(interval)
   }, [tournament?.status, id, currentUser?._id])
 
-  // Auto-scroll comments to bottom
   useEffect(() => {
-    commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' }) // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
+    commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [comments])
 
   async function handleJoin() {
@@ -217,10 +212,8 @@ export default function TournamentPage() {
   return (
     <div className="container" style={styles.page}>
 
-      {/* ── Left column ── */}
       <div style={styles.main}>
 
-        {/* Back link + title row */}
         <div>
           <Link to="/tournaments" style={styles.backLink}>← All tournaments</Link>
           <div style={styles.titleRow}>
@@ -246,7 +239,6 @@ export default function TournamentPage() {
           )}
         </div>
 
-        {/* Trophy */}
         {(tournament.trophyImage || tournament.trophyDescription) && (
           <div style={styles.trophy}>
             {tournament.trophyImage && (
@@ -262,7 +254,6 @@ export default function TournamentPage() {
           </div>
         )}
 
-        {/* Countdown (upcoming only) */}
         {status === 'upcoming' && countdown && (
           <div style={styles.countdown}>
             <span style={styles.countdownLabel}>Starts in</span>
@@ -270,7 +261,6 @@ export default function TournamentPage() {
           </div>
         )}
 
-        {/* Join / leave / action errors */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {actionError && <p style={{ color: 'var(--error)', fontSize: '0.875rem' }}>{actionError}</p>}
 
@@ -295,7 +285,6 @@ export default function TournamentPage() {
               </button>
             )}
 
-            {/* Owner / admin controls */}
             {canAdminister && status !== 'finished' && status !== 'cancelled' && (
               <button className="btn btn-secondary" onClick={handleCancel} disabled={actionLoading}>
                 Cancel tournament
@@ -317,7 +306,6 @@ export default function TournamentPage() {
           </div>
         </div>
 
-        {/* Player list (upcoming / ongoing) */}
         {(status === 'upcoming' || status === 'ongoing') && (
           <section>
             <h2 style={styles.sectionTitle}>
@@ -339,7 +327,6 @@ export default function TournamentPage() {
           </section>
         )}
 
-        {/* Ongoing games — shown to spectators and players awaiting their round */}
         {status === 'ongoing' && (
           <section>
             <h2 style={styles.sectionTitle}>Ongoing Games</h2>
@@ -362,7 +349,6 @@ export default function TournamentPage() {
           </section>
         )}
 
-        {/* Standings (ongoing / finished) */}
         {(status === 'ongoing' || status === 'finished') && tournament.standings?.length > 0 && (
           <section>
             <h2 style={styles.sectionTitle}>Standings</h2>
@@ -383,7 +369,6 @@ export default function TournamentPage() {
           </section>
         )}
 
-        {/* Winner banner (finished) */}
         {status === 'finished' && tournament.winner && (
           <div style={styles.winnerBanner}>
             🏆 Winner: <strong>{tournament.winner?.username ?? 'Unknown'}</strong>
@@ -391,7 +376,6 @@ export default function TournamentPage() {
         )}
       </div>
 
-      {/* ── Comments sidebar ── */}
       <aside style={styles.sidebar}>
         <h2 style={styles.sidebarTitle}>Comments</h2>
 
@@ -542,7 +526,6 @@ const styles = {
     fontSize: '1rem', textAlign: 'center',
   },
 
-  // Sidebar / comments (same pattern as GamePage)
   sidebar: {
     background: 'var(--bg-surface)', border: '1px solid var(--border)',
     borderRadius: 'var(--radius-lg)', display: 'flex', flexDirection: 'column',

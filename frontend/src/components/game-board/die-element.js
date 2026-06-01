@@ -13,14 +13,14 @@ import imgB7 from '../../assets/B7.png'
 
 const IMAGES = { RA: imgRA, RK: imgRK, RQ: imgRQ, RJ: imgRJ, R8: imgR8, R7: imgR7, BA: imgBA, BK: imgBK, BQ: imgBQ, BJ: imgBJ, B8: imgB8, B7: imgB7 }
 
-class DieElement extends HTMLElement { // https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements
-  static get observedAttributes() { // https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#responding_to_attribute_changes
+class DieElement extends HTMLElement {
+  static get observedAttributes() {
     return ['value', 'held', 'disabled', 'index']
   }
 
   constructor() {
     super()
-    this.attachShadow({ mode: 'open' }) // https://developer.mozilla.org/en-US/docs/Web/API/Element/attachShadow
+    this.attachShadow({ mode: 'open' })
     this._onClick = this._onClick.bind(this)
   }
 
@@ -29,9 +29,9 @@ class DieElement extends HTMLElement { // https://developer.mozilla.org/en-US/do
 
   _onClick() {
     if (this.hasAttribute('disabled')) return
-    this.dispatchEvent(new CustomEvent('die-hold', { // https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent
+    this.dispatchEvent(new CustomEvent('die-hold', {
       bubbles: true,
-      composed: true, // allows event to cross Shadow DOM boundary
+      composed: true,
       detail: { index: Number(this.getAttribute('index') ?? 0) },
     }))
   }

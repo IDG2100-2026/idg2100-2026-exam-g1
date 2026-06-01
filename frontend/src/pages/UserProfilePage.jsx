@@ -11,7 +11,6 @@ import {
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import ErrorMessage from "../components/ui/ErrorMessage";
 
-// Formats variant settings into a short readable string
 function formatVariant(game) {
   if (!game) return "—";
   const straights = game.variant === "straights" ? "Straights" : "No straights";
@@ -27,7 +26,6 @@ function formatDate(dateStr) {
   });
 }
 
-// Counts wins and losses from the last 30 days using the recentGames array on the profile
 function lastMonthStats(recentGames, userId) {
   const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const recent = (recentGames ?? []).filter(
@@ -41,8 +39,6 @@ function lastMonthStats(recentGames, userId) {
   return { wins, losses, total: recent.length };
 }
 
-// Profile page — shows stats, trophies, about-me, and last 10 games.
-// Owners can edit their bio, change their avatar, and update their password.
 export default function UserProfilePage() {
   const { id } = useParams();
   const { currentUser, isLoggedIn, updateUser } = useAuth();
@@ -52,17 +48,14 @@ export default function UserProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // About me editing
   const [aboutEdit, setAboutEdit] = useState(false);
   const [aboutText, setAboutText] = useState("");
   const [aboutSaving, setAboutSaving] = useState(false);
   const [aboutError, setAboutError] = useState("");
 
-  // Avatar upload
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarError, setAvatarError] = useState("");
 
-  // Password change
   const [pwForm, setPwForm] = useState({
     oldPassword: "",
     password: "",
@@ -72,7 +65,6 @@ export default function UserProfilePage() {
   const [pwError, setPwError] = useState("");
   const [pwSuccess, setPwSuccess] = useState("");
 
-  //Last 10 games
   const [recentGames, setRecentGames] = useState([]);
 
   useEffect(() => {
@@ -98,7 +90,6 @@ export default function UserProfilePage() {
     fetch();
   }, [id]);
 
-  // Uploads a new profile picture and updates both local profile state and AuthContext
   async function handleAvatarChange(e) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -176,7 +167,6 @@ export default function UserProfilePage() {
 
   return (
     <div className="container" style={styles.page}>
-      {/* Profile header */}
       <div className="card" style={styles.profileCard}>
         <div style={styles.avatarRow}>
           <div style={{ position: "relative", flexShrink: 0 }}>
@@ -225,7 +215,6 @@ export default function UserProfilePage() {
           </div>
         </div>
 
-        {/* About me */}
         <div style={styles.section}>
           <div style={styles.sectionHeader}>
             <h2 style={styles.sectionTitle}>About me</h2>
@@ -289,7 +278,6 @@ export default function UserProfilePage() {
       </div>
 
       <div style={styles.grid}>
-        {/* Stats */}
         <div className="card" style={styles.section}>
           <h2 style={styles.sectionTitle}>Stats</h2>
           <div style={styles.statsGrid}>
@@ -328,7 +316,6 @@ export default function UserProfilePage() {
           </div>
         </div>
 
-        {/* Trophies */}
         <div className="card" style={styles.section}>
           <h2 style={styles.sectionTitle}>Trophies</h2>
           {profile.trophies?.length > 0 ? (
@@ -345,7 +332,6 @@ export default function UserProfilePage() {
           )}
         </div>
 
-        {/* Password change — own profile only */}
         {isOwner && (
           <div className="card" style={styles.section}>
             <h2 style={styles.sectionTitle}>Change Password</h2>
@@ -408,7 +394,6 @@ export default function UserProfilePage() {
         )}
       </div>
 
-      {/* Recent games */}
       <div className="card" style={{ ...styles.section, marginTop: "1.5rem" }}>
         <div style={styles.sectionHeader}>
           <h2 style={styles.sectionTitle}>Last 10 Games</h2>

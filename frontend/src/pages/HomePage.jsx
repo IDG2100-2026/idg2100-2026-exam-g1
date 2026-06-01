@@ -9,14 +9,12 @@ import TournamentPreview from '../components/tournaments/TournamentPreview'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 import ErrorMessage from '../components/ui/ErrorMessage'
 
-// Computes the average ELO of all players in a game, used to rank top games
 function averageElo(players) {
   const elos = players?.map(p => p.user?.elo?.medium).filter(e => typeof e === 'number') ?? []
   if (elos.length === 0) return 0
   return elos.reduce((a, b) => a + b, 0) / elos.length
 }
 
-// Counts unique players across all in-progress games
 function countActivePlayers(liveGames) {
   const ids = new Set()
   liveGames.forEach(g => g.players?.forEach(p => {
@@ -48,7 +46,6 @@ function PlatformActivity({ stats }) {
   )
 }
 
-// Homepage — fetches waiting games, top-rated live/completed games, and upcoming tournaments in parallel.
 export default function HomePage() {
   const { lobbyCount } = useAppearance()
 
@@ -64,7 +61,7 @@ export default function HomePage() {
       setLoading(true)
       setError('')
       try {
-        const [lobbyRes, liveRes, completedRes, tourRes] = await Promise.all([ // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all
+        const [lobbyRes, liveRes, completedRes, tourRes] = await Promise.all([
           listGames({ status: 'waiting', limit: 20 }),
           listGames({ status: 'ongoing', limit: 20 }),
           listGames({ status: 'finished', limit: 10, sort: '-createdAt' }),
@@ -76,7 +73,6 @@ export default function HomePage() {
 
         setLobbyGames(lobby)
 
-        // Top 5: live games sorted by avg ELO, fill with recent completed if needed
         const sorted = [...live].sort((a, b) => averageElo(b.players) - averageElo(a.players))
         const combined = sorted.length >= 5
           ? sorted.slice(0, 5)
@@ -85,8 +81,6 @@ export default function HomePage() {
 
         setTournaments(tourRes.results ?? [])
 
-        // Derive available games + active players from already-fetched data.
-        // Games last week comes from the /stats endpoint (falls back gracefully).
         const activePlayers  = countActivePlayers(live)
         const availableGames = lobby.length
         let gamesLastWeek = null
@@ -108,7 +102,6 @@ export default function HomePage() {
   return (
     <div className="container">
 
-      {/* Hero */}
       <section style={styles.hero}>
         <div>
           <h1 style={styles.heroTitle}>Spanish Poker Dice</h1>

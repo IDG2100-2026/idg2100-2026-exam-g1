@@ -2,7 +2,6 @@ import cron from "node-cron";
 import User from "../Models/User.model.js";
 import { WEEKLY_POINTS } from "../Config/Constants.js";
 
-//Runs every monday at midnight
 const weeklyPoints = () => {
   cron.schedule("0 0 * * 1", async () => {
     try {

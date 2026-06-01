@@ -10,14 +10,12 @@ import Comment from "./Models/Comment.model.js";
 const seed = async () => {
   await connectDB();
 
-  // Clear existing data
   await User.deleteMany({});
   await Match.deleteMany({});
   await Tournament.deleteMany({});
   await Comment.deleteMany({});
   console.log("Cleared existing data");
 
-  // Create users
   const hashedPassword = await bcrypt.hash("Password1", 10);
 
   const users = await User.insertMany([
@@ -85,9 +83,7 @@ const seed = async () => {
   ]);
   console.log("Created users");
 
-  // Create matches
   const matches = await Match.insertMany([
-    // Waiting matches — joinable from lobby
     {
       variant: "standard",
       rounds: 5,
@@ -118,7 +114,6 @@ const seed = async () => {
       owner: users[3]._id,
       players: [{ user: users[3]._id, points: 50 }],
     },
-    // Finished match
     {
       variant: "standard",
       rounds: 5,
@@ -136,7 +131,6 @@ const seed = async () => {
   ]);
   console.log("Created matches");
 
-  // Create comments on the first match
   await Comment.insertMany([
     {
       content: "Good luck everyone!",
@@ -153,7 +147,6 @@ const seed = async () => {
   ]);
   console.log("Created comments");
 
-  // Create tournaments
   const now = new Date();
   await Tournament.insertMany([
     {
@@ -162,7 +155,7 @@ const seed = async () => {
         "Join us for the biggest tournament of the week. All skill levels welcome.",
       status: "upcoming",
       owner: users[0]._id,
-      startDate: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000), // 2 days from now
+      startDate: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000),
       totalRounds: 3,
       variant: "standard",
       timeControl: 30,
@@ -176,7 +169,7 @@ const seed = async () => {
       description: "Fast paced 10 second rounds. Only the quickest survive.",
       status: "upcoming",
       owner: users[0]._id,
-      startDate: new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
+      startDate: new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000),
       totalRounds: 2,
       variant: "standard",
       timeControl: 10,
@@ -190,7 +183,7 @@ const seed = async () => {
       description: "Straights variant only. For experienced players.",
       status: "upcoming",
       owner: users[0]._id,
-      startDate: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+      startDate: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000),
       totalRounds: 4,
       variant: "straights",
       timeControl: 90,
@@ -205,7 +198,7 @@ const seed = async () => {
       description: "Perfect for new players learning the ropes.",
       status: "finished",
       owner: users[0]._id,
-      startDate: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+      startDate: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
       totalRounds: 2,
       variant: "standard",
       timeControl: 30,
@@ -220,7 +213,7 @@ const seed = async () => {
       description: "Big buy-in, big rewards. Not for the faint hearted.",
       status: "upcoming",
       owner: users[0]._id,
-      startDate: new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000), // 10 days from now
+      startDate: new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000),
       totalRounds: 5,
       variant: "standard",
       timeControl: 90,

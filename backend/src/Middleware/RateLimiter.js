@@ -2,8 +2,8 @@ import rateLimit from "express-rate-limit";
 import AuditLog from "../Models/AuditLog.model.js";
 
 export const rateLimiter = rateLimit({
-  windowMs: 60 * 1000, //1 minute
-  max: 100, //Max 100 request
+  windowMs: 60 * 1000, 
+  max: 100, 
   handler: async (req, res) => {
     await AuditLog.create({
       type: "rate_limit",

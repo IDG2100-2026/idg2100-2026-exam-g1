@@ -2,11 +2,9 @@ import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { AppearanceProvider } from './context/AppearanceContext'
 
-// Layout
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
 
-// Pages
 import HomePage from './pages/HomePage'
 import LobbyPage from './pages/LobbyPage'
 import CreateGamePage from './pages/CreateGamePage'
@@ -27,7 +25,6 @@ import TermsPage from './pages/TermsPage'
 import PrivacyPage from './pages/PrivacyPage'
 import NotFoundPage from './pages/NotFoundPage'
 
-// Admin
 import AdminLayout from './components/layout/AdminLayout'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import AdminUsersPage from './pages/admin/AdminUsersPage'
@@ -52,7 +49,6 @@ export default function App() {
       <AuthProvider>
         <AppearanceProvider>
           <Routes>
-            {/* Pages with Header + Footer */}
             <Route element={<Layout />}>
               <Route path="/" element={<HomePage />} />
               <Route path="/lobby" element={<LobbyPage />} />
@@ -68,7 +64,6 @@ export default function App() {
               <Route path="/privacy" element={<PrivacyPage />} />
             </Route>
 
-            {/* Auth pages — no Header/Footer */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/verify/:code" element={<VerifyEmailPage />} />
@@ -76,7 +71,6 @@ export default function App() {
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password/:code" element={<ResetPasswordPage />} />
 
-            {/* Admin pages — own layout with role guard */}
             <Route element={<AdminLayout />}>
               <Route path="/admin" element={<AdminDashboardPage />} />
               <Route path="/admin/users" element={<AdminUsersPage />} />
@@ -85,7 +79,6 @@ export default function App() {
               <Route path="/admin/tournaments/:id/edit" element={<AdminTournamentCreatePage />} />
             </Route>
 
-            {/* 404 — catch-all, must be last */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </AppearanceProvider>

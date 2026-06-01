@@ -4,7 +4,6 @@ import User from "../Models/User.model.js";
 import { body } from "express-validator";
 import Match from "../Models/Match.model.js";
 
-//---------------CREATE TOURNAMENT RULES---------------------
 export const createTournamentRules = [
   body("title")
     .trim()
@@ -50,8 +49,6 @@ export const createTournamentRules = [
     .withMessage("Max players must be at least 2"),
 ];
 
-//----------------------GET TOURNAMENTS----------------------
-//supports: ?sort=date|title|player, ?search=string, ?status=upcoming|ongoing|finished
 export const getAllTournaments = async (req, res, next) => {
   const { sort, search, status } = req.query;
   const page = parseInt(req.query.page) || 1;
@@ -60,10 +57,8 @@ export const getAllTournaments = async (req, res, next) => {
 
   const filter = {};
 
-  //Filter by status
   if (status) filter.status = status;
 
-  //Search by title - min 3 characters
   if (search && search.length >= 3) {
     filter.title = { $regex: search, $options: "i" };
   }
@@ -71,31 +66,26 @@ export const getAllTournaments = async (req, res, next) => {
   const total = await Tournament.countDocuments(filter);
   const results = {};
 
-  //Add next object if its not the last page
   if (skip + limit < total) {
     results.next = { page: page + 1, limit };
   }
-  //Adds previous object if its not the first page
   if (skip > 0) {
     results.previous = { page: page - 1, limit };
   }
 
   let tournaments = await Tournament.find(filter).skip(skip).limit(limit);
 
-  //Sort results
   if (sort === "title") {
     tournaments.sort((a, b) => a.title.localeCompare(b.title));
   } else if (sort === "players") {
     tournaments.sort((a, b) => b.players.length - a.players.length);
   } else {
-    //Default sort by start date
     tournaments.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
   }
   results.results = tournaments;
   res.status(200).json(results);
 };
 
-//----------------------GET ONE TOURNAMENT----------------------
 export const getTournament = async (req, res, next) => {
   const tournament = await Tournament.findById(req.params.id)
     .populate("owner", "username")
@@ -104,7 +94,6 @@ export const getTournament = async (req, res, next) => {
 
   if (!tournament) return next(new AppError("Tournament not found", 404));
 
-  //Calculate standings for ongoing tournaments
   const standings = [...tournament.players]
     .sort((a, b) => b.chips - a.chips)
     .map((player, index) => ({
@@ -116,7 +105,6 @@ export const getTournament = async (req, res, next) => {
   res.status(200).json({ ...tournament.toObject(), standings });
 };
 
-//----------------------CREATE TOURNAMENT----------------------
 export const createTournament = async (req, res, next) => {
   const tournament = await Tournament.create({
     title: req.body.title,
@@ -127,7 +115,6 @@ export const createTournament = async (req, res, next) => {
     timeControl: req.body.timeControl,
     buyIn: req.body.buyIn,
     maxPlayers: req.body.maxPlayers,
-    //Optional fields
     minElo: req.body.minElo || 0,
     maxElo: req.body.maxElo || 9999,
     trophyDescription: req.body.trophyDescription,
@@ -138,7 +125,6 @@ export const createTournament = async (req, res, next) => {
   res.status(201).json(tournament);
 };
 
-//----------------------TROPHY PICTURE----------------------
 export const updateTrophy = async (req, res, next) => {
   if (!req.file) return next(new AppError("No image uploaded", 400));
 
@@ -153,31 +139,26 @@ export const updateTrophy = async (req, res, next) => {
   res.status(200).json(tournament);
 };
 
-//----------------------JOIN TOURNAMENT----------------------
 export const joinTournament = async (req, res, next) => {
   const tournament = await Tournament.findById(req.params.id);
   if (!tournament) return next(new AppError("Tournament not found", 404));
 
-  //Can only join upcoming tournaments
   if (tournament.status !== "upcoming") {
     return next(
       new AppError(`Cannot join a ${tournament.status} tournament`, 400),
     );
   }
 
-  //Check if already joined
   const alreadyJoined = tournament.players.some(
     (p) => p.user.toString() === req.user._id.toString(),
   );
   if (alreadyJoined)
     return next(new AppError("Already joined this tournament", 400));
 
-  //Check if full
   if (tournament.players.length >= tournament.maxPlayers) {
     return next(new AppError("Tournament is full", 400));
   }
 
-  //Check elo range
   const user = await User.findById(req.user._id);
   if (!user) return next(new AppError("User not found", 404));
   let userElo;
@@ -190,58 +171,48 @@ export const joinTournament = async (req, res, next) => {
     );
   }
 
-  //Check if user has enough points for buy in
   if (user.points < tournament.buyIn) {
     return next(new AppError("Not enough points for buy-in", 400));
   }
 
-  //Deduct points
   user.points -= tournament.buyIn;
   await user.save();
 
-  //Add player
   tournament.players.push({ user: req.user._id, chips: 1500 });
   await tournament.save();
   res.status(200).json(tournament);
 };
 
-//----------------------START TOURNAMENT----------------------
 export const startTournament = async (req, res, next) => {
   const tournament = await Tournament.findById(req.params.id);
   if (!tournament) return next(new AppError("Tournament not found", 404));
 
-  //Can only start upcomming tournaments
   if (tournament.status !== "upcoming") {
     return next(new AppError("Tournament is not upcoming", 400));
   }
 
-  //Need atleast 2 players
   if (tournament.players.length < 2) {
     return next(new AppError("Needs at least 2 players to start", 400));
   }
 
-  //Set status to ongoing and round to 1
   tournament.status = "ongoing";
   tournament.currentRound = 1;
   await tournament.save();
 
-  //Suffle players randomly for pairing
   const activePlayers = [...tournament.players].sort(() => Math.random() - 0.5);
 
-  //Pair players, if odd number last player gets a bye
   const pairs = [];
   for (let i = 0; i < activePlayers.length - 1; i += 2) {
     pairs.push([activePlayers[i], activePlayers[i + 1]]);
   }
 
-  //Create match for each pair
   for (const [p1, p2] of pairs) {
     await Match.create({
       variant: tournament.variant,
       timeControl: tournament.timeControl,
       rounds: 3,
       maxPlayers: 2,
-      buyIn: 0, //Buy in is payed when joining the tournament
+      buyIn: 0, 
       owner: tournament.owner,
       tournament: tournament._id,
       status: "waiting",
@@ -254,24 +225,20 @@ export const startTournament = async (req, res, next) => {
   res.status(200).json({ message: "Tournament started", tournament });
 };
 
-//----------------------LEAVE TOURNAMENT----------------------
 export const leaveTournament = async (req, res, next) => {
   const tournament = await Tournament.findById(req.params.id);
   if (!tournament) return next(new AppError("Tournament not found", 404));
 
-  //Check if in tournament
   const isInTournament = tournament.players.some(
     (p) => p.user.toString() === req.user._id.toString(),
   );
   if (!isInTournament)
     return next(new AppError("You are not in this tournament", 400));
 
-  //Return points
   const user = await User.findById(req.user._id);
   user.points += tournament.buyIn;
   await user.save();
 
-  //Remove player
   tournament.players = tournament.players.filter(
     (p) => p.user.toString() !== req.user._id.toString(),
   );
@@ -279,7 +246,6 @@ export const leaveTournament = async (req, res, next) => {
   res.status(200).json({ message: "Left tournament successfully" });
 };
 
-//----------------------DELETE TOURNAMENT----------------------
 export const deleteTournament = async (req, res, next) => {
   const tournament = await Tournament.findById(req.params.id);
   if (!tournament) return next(new AppError("Tournament not found", 404));
@@ -288,7 +254,6 @@ export const deleteTournament = async (req, res, next) => {
   res.status(200).json({ message: "Tournament deleted" });
 };
 
-//----------------------UPDATE TOURNAMENT----------------------
 export const updateTournament = async (req, res, next) => {
   const tournament = await Tournament.findByIdAndUpdate(
     req.params.id,
@@ -311,12 +276,10 @@ export const updateTournament = async (req, res, next) => {
   res.status(200).json(tournament);
 };
 
-//----------------------CANCEL TOURNAMENT----------------------
 export const cancelTournament = async (req, res, next) => {
   const tournament = await Tournament.findById(req.params.id);
   if (!tournament) return next(new AppError("Tournament not found", 404));
 
-  //Can only cancel upcoming or ongoing tournaments
   if (tournament.status === "finished" || tournament.status === "cancelled") {
     return next(
       new AppError("Tournament is already finished or cancelled", 400),

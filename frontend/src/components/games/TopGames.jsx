@@ -1,16 +1,12 @@
 import GameCard from './GameCard'
 
-// Shows up to 5 games sorted by highest average ELO.
-// If no live games exist, falls back to the most recent completed games.
 export default function TopGames({ games = [] }) {
-  // Check if any of the games are currently live to show the correct subtitle
   const hasLive = games.some(g => g.status === 'ongoing')
 
   return (
     <section style={styles.section}>
       <div style={styles.heading}>
         <h2 style={styles.title}>Top 5 Games</h2>
-        {/* Subtitle changes depending on whether live games are available */}
         <span style={styles.sub}>
           {hasLive ? 'Currently running · highest ELO' : 'Most recent past games'}
         </span>

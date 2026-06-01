@@ -2,7 +2,6 @@ import mongoose, { Schema } from "mongoose";
 
 const matchSchema = new Schema(
   {
-    //Settings
     variant: {
       type: String,
       enum: ["standard", "straights"],
@@ -33,14 +32,12 @@ const matchSchema = new Schema(
       required: true,
     },
 
-    //match status
     status: {
       type: String,
       enum: ["waiting", "ongoing", "finished"],
       default: "waiting",
     },
 
-    //Players
     players: [
       {
         user: { type: Schema.Types.ObjectId, ref: "User" },
@@ -53,7 +50,6 @@ const matchSchema = new Schema(
       ref: "User",
     },
 
-    //Active game state
     gameState: {
       currentRound: {
         type: Number,
@@ -101,7 +97,6 @@ const matchSchema = new Schema(
       default: null,
     },
 
-    //Owner of the match
     owner: {
       type: Schema.Types.ObjectId,
       ref: "User",

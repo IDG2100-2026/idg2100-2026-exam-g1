@@ -1,8 +1,6 @@
 import { Outlet, NavLink, Navigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 
-// Minimal layout for admin pages.
-// Redirects non-admins away.
 export default function AdminLayout() {
   const { currentUser, isLoggedIn } = useAuth()
 

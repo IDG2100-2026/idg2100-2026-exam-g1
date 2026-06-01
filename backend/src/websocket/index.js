@@ -19,7 +19,6 @@ const initWebSocket = (server) => {
     }
 
     try {
-      //verify access token
       const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
       socket.user = decoded;
       next();
@@ -29,12 +28,10 @@ const initWebSocket = (server) => {
   });
 
   io.on("connection", (socket) => {
-    //Join match room
     socket.on("joinMatch", (matchId) => {
       socket.join(matchId);
       console.log(`${socket.id} joined match ${matchId}`);
 
-      //playercount
       const playerCount = io.sockets.adapter.rooms.get(matchId)?.size;
       console.log(`Players in match ${matchId}: ${playerCount}`);
 
@@ -44,33 +41,26 @@ const initWebSocket = (server) => {
       });
     });
 
-    //Player rolls dice
     socket.on("rollDice", (data) => {
       gameLogic.handleRoll(socket, data, io);
     });
 
-    //Player is done rolling
     socket.on("doneRolling", (data) => {
       gameLogic.handleDoneRolling(socket, data, io);
     });
 
-    //player action, bet raise fold
     socket.on("playerAction", (data) => {
       gameLogic.handlePlayerAction(socket, data, io);
     });
-    //Player folded
     socket.on("fold", (data) => {
       gameLogic.handleFold(socket, data, io);
     });
-    //New comment
     socket.on("newComment", async (data) => {
-      //validation
       if (!data.content?.trim()) return;
       if (!["match", "tournament"].includes(data.targetType)) return;
       if (!data.targetId) return;
 
       try {
-        //Save to database
         const comment = await Comment.create({
           content: data.content,
           author: socket.user._id,
@@ -79,7 +69,6 @@ const initWebSocket = (server) => {
         });
         await comment.populate("author", "username");
 
-        //Broadcast
         io.to(data.targetId).emit("commentReceived", comment);
       } catch (err) {
         console.error("Comment error:", err);

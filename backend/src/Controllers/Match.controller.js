@@ -4,7 +4,6 @@ import { body } from "express-validator";
 import User from "../Models/User.model.js";
 import { startGame } from "../websocket/gameLogic.js";
 
-//---------------CREATE MATCH RULES----------------
 export const createMatchRules = [
   body("variant")
     .notEmpty()
@@ -33,16 +32,12 @@ export const createMatchRules = [
     .withMessage("Buy in must be 1, 10 or 50"),
 ];
 
-//----------------GET ALL MATCHES----------------
-//mostly from https://www.youtube.com/watch?v=ZX3qt0UWifc
-//supports: ?variant=standard|straights, ?rounds=3|5|7, ?timeControl=10|30|90, ?status=waiting|ongoing|finished, ?page=1, ?limit=10
 export const getAllMatches = async (req, res, next) => {
   const { variant, rounds, status, timeControl } = req.query;
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
-  //Filter
   const filter = {};
   if (variant) filter.variant = variant;
   if (rounds) filter.rounds = parseInt(rounds);
@@ -52,12 +47,10 @@ export const getAllMatches = async (req, res, next) => {
   const total = await Match.countDocuments(filter);
   const results = {};
 
-  //Add next object if its not the last page
   if (skip + limit < total) {
     results.next = { page: page + 1, limit };
   }
 
-  //Adds previous object if its not the first page
   if (skip > 0) {
     results.previous = { page: page - 1, limit };
   }
@@ -68,7 +61,6 @@ export const getAllMatches = async (req, res, next) => {
   res.status(200).json(results);
 };
 
-//----------------GET ONE MATCH----------------
 export const getMatch = async (req, res, next) => {
   const match = await Match.findById(req.params.id)
     .populate("players.user", "username elo profilePicture")
@@ -77,19 +69,15 @@ export const getMatch = async (req, res, next) => {
   res.status(200).json(match);
 };
 
-//----------------CREATE MATCH----------------
 export const createMatch = async (req, res, next) => {
-  //Check if user has enough points
   const user = await User.findById(req.user._id);
   if (user.points < req.body.buyIn) {
     return next(new AppError("Not enough points for buy-in", 400));
   }
 
-  //Deduct points
   user.points -= req.body.buyIn;
   await user.save();
 
-  //Create match
   const match = await Match.create({
     variant: req.body.variant,
     rounds: req.body.rounds,
@@ -105,39 +93,31 @@ export const createMatch = async (req, res, next) => {
   res.status(201).json(match);
 };
 
-//----------------JOIN MATCH----------------
-//need to figure out buy in
 export const joinMatch = async (req, res, next) => {
   const match = await Match.findById(req.params.id);
   if (!match) return next(new AppError("Match not found", 404));
 
-  //Only waiting matches can be joined
   if (match.status !== "waiting") {
     return next(new AppError("Match already started", 400));
   }
 
-  //Check if already joined
   const alreadyJoined = match.players.some(
     (p) => p.user.toString() === req.user._id.toString(),
   );
   if (alreadyJoined) return next(new AppError("Already in this match", 400));
 
-  //Check if full
   if (match.players.length >= match.maxPlayers) {
     return next(new AppError("Match is full", 400));
   }
 
-  //check points for buy in
   const user = await User.findById(req.user._id);
   if (user.points < match.buyIn) {
     return next(new AppError("Not enough points for buy-in", 400));
   }
 
-  //Deduct points
   user.points -= match.buyIn;
   await user.save();
 
-  //push players to match
   match.players.push({ user: req.user._id, points: match.buyIn });
   await match.save();
 
@@ -148,35 +128,29 @@ export const joinMatch = async (req, res, next) => {
     playerCount: match.players.length,
   });
 
-  //Start game if enough players joined
   if (match.players.length === match.maxPlayers) {
     await startGame(match._id.toString(), io);
   }
   res.status(200).json(match);
 };
 
-//----------------LEAVE MATCH----------------
 export const leaveMatch = async (req, res, next) => {
   const match = await Match.findById(req.params.id);
   if (!match) return next(new AppError("Match not found", 404));
 
-  //Can only leave if match is waiting
   if (match.status !== "waiting") {
     return next(new AppError("Cannot leave a match that already started", 400));
   }
 
-  //Check if player is in match
   const isInMatch = match.players.some(
     (p) => p.user.toString() === req.user._id.toString(),
   );
   if (!isInMatch) return next(new AppError("You are not in this match", 400));
 
-  //return points
   const user = await User.findById(req.user._id);
   user.points += match.buyIn;
   await user.save();
 
-  //Remove from match
   match.players = match.players.filter(
     (p) => p.user.toString() !== req.user._id.toString(),
   );
@@ -190,12 +164,10 @@ export const leaveMatch = async (req, res, next) => {
   res.status(200).json({ message: "Left match successfully" });
 };
 
-//----------------DELETE MATCH----------------
 export const deleteMatch = async (req, res, next) => {
   const match = await Match.findById(req.params.id);
   if (!match) return next(new AppError("Match not found", 404));
 
-  //Check ownership
   if (
     match.owner.toString() !== req.user._id.toString() &&
     req.user.role !== "admin"
@@ -207,7 +179,6 @@ export const deleteMatch = async (req, res, next) => {
   res.status(200).json({ message: "Match deleted" });
 };
 
-//----------------PLATFORM ACTIVITY----------------
 export const getPlatformActivity = async (req, res, next) => {
   const oneWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 

@@ -40,7 +40,6 @@ export default function LobbyPage() {
       const res = await listGames(params)
       const all = res.results ?? []
 
-      // Client-side ELO filter — backend doesn't support ELO range queries
       const filtered = all.filter(g => {
         if (!isLoggedIn || !currentUser?.elo?.medium) return true
         const gameAvg = avgElo(g.players)
@@ -85,7 +84,6 @@ export default function LobbyPage() {
         <Link to="/create-game" className="btn btn-primary">Create a Game</Link>
       </div>
 
-      {/* Filter bar */}
       <div style={styles.filterBar}>
         {Object.entries(FILTERS).map(([key, { label, options }]) => (
           <div key={key} style={styles.filterGroup}>

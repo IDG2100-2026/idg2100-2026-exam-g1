@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext'
 import { createGame } from '../api/games'
 import ErrorMessage from '../components/ui/ErrorMessage'
 
-// Fixed option sets for the three game variant pickers
 const ROUNDS_OPTIONS    = [3, 5, 7]
 const VARIANT_OPTIONS   = [
   { label: 'Standard',      value: 'standard'  },
@@ -14,7 +13,6 @@ const TIME_OPTIONS      = [10, 30, 90]
 const PLAYERS_OPTIONS   = [2, 3, 5]
 const BUYIN_OPTIONS     = [1, 10, 50]
 
-// Reusable radio-button group that renders options as pill-style toggle buttons
 function RadioGroup({ label, options, value, onChange }) {
   return (
     <div style={styles.group}>
@@ -43,8 +41,6 @@ function RadioGroup({ label, options, value, onChange }) {
   )
 }
 
-// Create Game page — lets the user pick variant options and enter the matchmaking queue.
-// If a match is found immediately, navigates to the game; otherwise goes to the lobby.
 export default function CreateGamePage() {
   const { isLoggedIn } = useAuth()
   const navigate = useNavigate()

@@ -3,16 +3,13 @@ import AppError from "../Utils/AppError.js";
 import AuditLog from "../Models/AuditLog.model.js";
 
 const auth = async (req, res, next) => {
-  //Check for SKIP_AUTH in .env and attach fake user if true
   if (process.env.SKIP_AUTH === "true") {
     req.user = { _id: "6a0cc7d7b757fb26b1f9ae08", role: "admin" };
     return next();
   }
 
-  //Get authorization header from request
   const authHeader = req.headers.authorization;
 
-  //Reject request if no authorization header
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return next(new AppError("No token provided", 401));
   }
@@ -20,11 +17,8 @@ const auth = async (req, res, next) => {
   const token = authHeader.split(" ")[1];
 
   try {
-    //Verify token with secret
     const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-    //Check ip match
     if (decoded.ip && decoded.ip !== req.ip) {
-      //Log incident
       await AuditLog.create({
         type: "ip_change",
         ip: req.ip,
@@ -33,7 +27,6 @@ const auth = async (req, res, next) => {
       });
       return next(new AppError("Session invalid", 401));
     }
-    //Attach to request
     req.user = decoded;
 
     next();
@@ -46,7 +39,6 @@ const auth = async (req, res, next) => {
   }
 };
 
-//Admin only routes
 export const requireAdmin = (req, res, next) => {
   if (req.user.role !== "admin") {
     return next(new AppError("Admin access required", 403));

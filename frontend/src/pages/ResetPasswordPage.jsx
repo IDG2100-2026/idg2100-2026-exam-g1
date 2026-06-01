@@ -7,20 +7,20 @@ export default function ResetPasswordPage() {
   const { code } = useParams()
   const navigate = useNavigate()
 
-  const [password, setPassword]   = useState('')
-  const [confirm, setConfirm]     = useState('')
-  const [loading, setLoading]     = useState(false)
-  const [error, setError]         = useState('')
-  const [success, setSuccess]     = useState(false)
+  const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
 
-    if (password.length < 8)          return setError('Password must be at least 8 characters.')
-    if (!/[0-9]/.test(password))      return setError('Password must contain at least one number.')
-    if (!/[A-Z]/.test(password))      return setError('Password must contain at least one uppercase letter.')
-    if (password !== confirm)         return setError('Passwords do not match.')
+    if (password.length < 8) return setError('Password must be at least 8 characters.')
+    if (!/[0-9]/.test(password)) return setError('Password must contain at least one number.')
+    if (!/[A-Z]/.test(password)) return setError('Password must contain at least one uppercase letter.')
+    if (password !== confirm) return setError('Passwords do not match.')
 
     setLoading(true)
     try {

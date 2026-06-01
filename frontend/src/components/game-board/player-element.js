@@ -8,14 +8,14 @@ function esc(str) {
     .replace(/"/g, '&quot;')
 }
 
-class PlayerElement extends HTMLElement { // https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements
-  static get observedAttributes() { // https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#responding_to_attribute_changes
+class PlayerElement extends HTMLElement {
+  static get observedAttributes() {
     return ['username', 'chips', 'bet', 'is-you', 'folded', 'active-turn']
   }
 
   constructor() {
     super()
-    this.attachShadow({ mode: 'open' }) // https://developer.mozilla.org/en-US/docs/Web/API/Element/attachShadow
+    this.attachShadow({ mode: 'open' })
     this._dice = Array(5).fill({ value: '', held: false })
     this._canInteract = false
   }

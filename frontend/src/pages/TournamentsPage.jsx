@@ -31,7 +31,6 @@ export default function TournamentsPage() {
     return () => clearTimeout(timer)
   }, [search])
 
-  // Reset to page 1 when sort or search changes
   useEffect(() => {
     setPage(1)
     setAll([])
@@ -59,7 +58,6 @@ export default function TournamentsPage() {
     fetchAll()
   }, [sort, debouncedSearch, page])
 
-  // Split into active (upcoming/ongoing) and past (finished/cancelled)
   const active = all.filter(t => t.status === 'upcoming' || t.status === 'ongoing')
   const past   = all.filter(t => t.status === 'finished' || t.status === 'cancelled')
 
@@ -68,7 +66,6 @@ export default function TournamentsPage() {
   return (
     <div className="container">
 
-      {/* Header */}
       <div style={styles.heading}>
         <div>
           <h1 style={styles.title}>Tournaments</h1>
@@ -77,7 +74,6 @@ export default function TournamentsPage() {
         <Link to="/create-game" className="btn btn-primary">Create a Game</Link>
       </div>
 
-      {/* Controls row: search + sort */}
       <div style={styles.controls}>
         <div style={styles.searchWrap}>
           <input
@@ -119,7 +115,6 @@ export default function TournamentsPage() {
         </p>
       )}
 
-      {/* Upcoming & Ongoing */}
       {!loading && active.length > 0 && (
         <section style={styles.section}>
           <h2 style={styles.sectionTitle}>Upcoming &amp; Ongoing</h2>
@@ -129,7 +124,6 @@ export default function TournamentsPage() {
         </section>
       )}
 
-      {/* Past tournaments */}
       {!loading && past.length > 0 && (
         <section style={styles.section}>
           <h2 style={styles.sectionTitle}>Past Tournaments</h2>

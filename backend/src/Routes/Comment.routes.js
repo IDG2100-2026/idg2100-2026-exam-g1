@@ -5,10 +5,9 @@ import { validateRequest } from "../Middleware/Validate.js";
 
 const router = Router();
 
-router.get("/", commentController.getComments); //Get all comments - public
-router.delete("/:id", auth, commentController.deleteComment); //Delete comment - auth required
+router.get("/", commentController.getComments);
+router.delete("/:id", auth, commentController.deleteComment);
 
-//Create comment - auth required
 router.post(
   "/",
   auth,
@@ -17,7 +16,6 @@ router.post(
   commentController.createComment,
 );
 
-//Edit comment
 router.put(
   "/:id",
   auth,

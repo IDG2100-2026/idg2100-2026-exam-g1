@@ -1,8 +1,6 @@
 import { useRef, useEffect } from 'react'
 import './game-board.js'
 
-// React wrapper around the <game-board> Web Component.
-// Complex data (arrays, objects) must be passed via DOM properties since HTML attributes are strings only.
 export default function GameBoard({ game, currentUser, socketState, onAction, onDieHold }) {
   const boardRef = useRef(null)
 

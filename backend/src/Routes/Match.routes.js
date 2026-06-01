@@ -5,10 +5,9 @@ import { validateRequest } from "../Middleware/Validate.js";
 
 const router = Router();
 
-router.get("/", matchController.getAllMatches); //Get all matches - public lobby
-router.get("/activity", matchController.getPlatformActivity); //get platform activity last week
-router.get("/:id", matchController.getMatch); //Get one match - public anyone can spectate
-//Create match - auth reqired
+router.get("/", matchController.getAllMatches);
+router.get("/activity", matchController.getPlatformActivity);
+router.get("/:id", matchController.getMatch);
 router.post(
   "/",
   auth,
@@ -16,8 +15,8 @@ router.post(
   validateRequest,
   matchController.createMatch,
 );
-router.post("/:id/join", auth, matchController.joinMatch); //Join match - auth required
-router.delete("/:id", auth, matchController.deleteMatch); //Delete match - auth required
-router.post("/:id/leave", auth, matchController.leaveMatch); //Leave match - auth reqired
+router.post("/:id/join", auth, matchController.joinMatch);
+router.delete("/:id", auth, matchController.deleteMatch);
+router.post("/:id/leave", auth, matchController.leaveMatch);
 
 export default router;

@@ -53,14 +53,12 @@ export default function AdminDashboardPage() {
     <div>
       <h1 style={styles.pageTitle}>Admin Dashboard</h1>
 
-      {/* Quick links */}
       <div style={styles.quickLinks}>
         <Link to="/admin/users"              className="btn btn-secondary">User Administration</Link>
         <Link to="/admin/comments"           className="btn btn-secondary">Comment Administration</Link>
         <Link to="/admin/tournaments/create" className="btn btn-secondary">Create Tournament</Link>
       </div>
 
-      {/* Platform activity */}
       <Section title="Platform Activity">
         <div style={styles.statsGrid}>
           <StatCard label="Active players"  value={activePlayers} />
@@ -69,14 +67,12 @@ export default function AdminDashboardPage() {
         </div>
       </Section>
 
-      {/* New profiles */}
       <Section title="New Profiles">
         <div style={styles.statsGrid}>
           <StatCard label="New profiles this week" value={newProfiles?.lastWeek} />
         </div>
       </Section>
 
-      {/* Security incidents */}
       <Section title="Security Incidents">
         {!incidents?.length ? (
           <p style={styles.empty}>No incidents recorded.</p>

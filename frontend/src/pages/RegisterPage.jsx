@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { register as registerApi } from "../api/users";
 import ErrorMessage from "../components/ui/ErrorMessage";
 
-// Calculates the user's current age from a date-of-birth string
 function calcAge(dob) {
   const today = new Date();
   const birth = new Date(dob);
@@ -13,8 +12,6 @@ function calcAge(dob) {
   return age;
 }
 
-// Registration form — validates age (18+), matching passwords, and terms agreement,
-// then registers and immediately logs the user in.
 export default function RegisterPage() {
   const navigate = useNavigate();
 
@@ -30,7 +27,6 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // Generic change handler — works for both text inputs and the checkbox
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({

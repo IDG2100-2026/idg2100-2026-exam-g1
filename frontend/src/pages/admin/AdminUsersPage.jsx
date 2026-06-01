@@ -59,7 +59,6 @@ export default function AdminUsersPage() {
     <div>
       <h1 style={styles.pageTitle}>User Administration</h1>
 
-      {/* Filters */}
       <div style={styles.controls}>
         <input
           type="search"

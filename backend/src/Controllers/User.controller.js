@@ -4,7 +4,6 @@ import { body } from "express-validator";
 import bcrypt from "bcrypt";
 import Match from "../Models/Match.model.js";
 
-//------------------UPDATE USER RULES-------------------
 export const updateUserRules = [
   body("username")
     .optional()
@@ -25,7 +24,6 @@ export const updateUserRules = [
     .withMessage("Bio cannot exceed 500 characters"),
 ];
 
-//---------------UPDATE PASSWORD RULES-------------------
 export const updatePasswordRules = [
   body("oldPassword").notEmpty().withMessage("Old password is required"),
   body("newPassword")
@@ -39,8 +37,6 @@ export const updatePasswordRules = [
     .withMessage("Password must contain at least one uppercase letter"),
 ];
 
-//-------------------GET ALL USERS-------------------
-//supports: ?search=string, ?role=user|admin, ?isBanned=true|false
 export const getAllUsers = async (req, res, next) => {
   const { search, role, isBanned } = req.query;
   const filter = {};
@@ -53,14 +49,12 @@ export const getAllUsers = async (req, res, next) => {
   res.status(200).json({ results: users });
 };
 
-//-------------------GET ONE USER-------------------
 export const getUser = async (req, res, next) => {
   const user = await User.findById(req.params.id);
   if (!user) return next(new AppError("User not found", 404));
   res.status(200).json(user);
 };
 
-//-------------------UPDATE USER-------------------
 export const updateUser = async (req, res, next) => {
   if (req.user._id.toString() !== req.params.id && req.user.role !== "admin") {
     return next(new AppError("Not allowed", 403));
@@ -78,28 +72,22 @@ export const updateUser = async (req, res, next) => {
   res.status(200).json(user);
 };
 
-//-------------------UPDATE PASSWORD-------------------
 export const updatePassword = async (req, res, next) => {
-  //Only owner can change password
   if (req.user._id.toString() !== req.params.id) {
     return next(new AppError("Not allowed", 403));
   }
 
-  //Get user with password included
   const user = await User.findById(req.params.id).select("+password");
   if (!user) return next(new AppError("User not found", 404));
 
-  //Verify old password
   const isCorrect = await bcrypt.compare(req.body.oldPassword, user.password);
   if (!isCorrect) return next(new AppError("Incorrect password", 401));
 
-  //Hash and save new password
   user.password = await bcrypt.hash(req.body.newPassword, 10);
   await user.save();
   res.status(200).json({ message: "Password updated" });
 };
 
-//-------------------UPDATE PROFILE PICTURE-------------------
 export const updateAvatar = async (req, res, next) => {
   if (req.user._id.toString() !== req.params.id && req.user.role !== "admin") {
     return next(new AppError("Not allowed", 403));
@@ -118,7 +106,6 @@ export const updateAvatar = async (req, res, next) => {
   res.status(200).json(user);
 };
 
-//-------------------DELETE USER-------------------
 export const deleteUser = async (req, res, next) => {
   if (req.user._id.toString() !== req.params.id && req.user.role !== "admin") {
     return next(new AppError("Not allowed", 403));
@@ -128,8 +115,6 @@ export const deleteUser = async (req, res, next) => {
   res.status(200).json({ message: "User deleted" });
 };
 
-//-------------------GET USER GAMES-------------------
-// supports: ?page=1, ?limit=10
 export const getUserGames = async (req, res, next) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
@@ -140,12 +125,10 @@ export const getUserGames = async (req, res, next) => {
   const total = await Match.countDocuments(filter);
   const results = {};
 
-  //Add next object if its not the last page
   if (skip + limit < total) {
     results.next = { page: page + 1, limit };
   }
 
-  //Adds previous object if its not the first page
   if (skip > 0) {
     results.previous = { page: page - 1, limit };
   }

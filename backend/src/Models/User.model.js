@@ -69,9 +69,9 @@ const userSchema = new Schema(
     },
 
     elo: {
-      short: { type: Number, default: 1000 }, //10 seconds
-      medium: { type: Number, default: 1000 }, //30 seconds
-      long: { type: Number, default: 1000 }, //90 seconds
+      short: { type: Number, default: 1000 }, 
+      medium: { type: Number, default: 1000 }, 
+      long: { type: Number, default: 1000 }, 
     },
 
     totalGames: {

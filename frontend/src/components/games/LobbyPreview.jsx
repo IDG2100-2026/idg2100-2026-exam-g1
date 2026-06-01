@@ -1,10 +1,7 @@
 import { Link } from 'react-router-dom'
 import GameCard from './GameCard'
 
-// Shows a limited preview of open lobby games on the homepage. (Does not work because of queue logic)
-// The number of games shown is controlled by the `limit` prop (set via appearance settings).
 export default function LobbyPreview({ games = [], limit = 5 }) {
-  // Only show up to `limit` games
   const visible = games.slice(0, limit)
 
   return (
@@ -18,7 +15,6 @@ export default function LobbyPreview({ games = [], limit = 5 }) {
         <p style={styles.empty}>No games available to join right now.</p>
       ) : (
         <div style={styles.grid}>
-          {/* autoJoin tells GameCard to join the game automatically on click */}
           {visible.map(game => (
             <GameCard key={game._id} game={game} autoJoin />
           ))}

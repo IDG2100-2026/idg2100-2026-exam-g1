@@ -18,7 +18,6 @@ function formatDate(dateStr) {
   })
 }
 
-// Full game history for a user — paginated list with Win/Loss result, variant, players, and date.
 export default function UserGamesPage() {
   const { id } = useParams()
   const [username, setUsername] = useState('')
@@ -28,7 +27,6 @@ export default function UserGamesPage() {
   const [loading, setLoading]   = useState(true)
   const [error, setError]       = useState('')
 
-  // Fetch the username separately so the page heading shows a name, not just an ID
   useEffect(() => {
     getProfile(id).then(res => setUsername(res.username)).catch(() => {})
   }, [id])

@@ -18,7 +18,6 @@ const DEFAULTS = {
   trophyDescription: '',
 }
 
-// Converts a Date/ISO string to the datetime-local input format (YYYY-MM-DDTHH:MM)
 function toDatetimeLocal(dateStr) {
   if (!dateStr) return ''
   const d = new Date(dateStr)
@@ -37,7 +36,6 @@ export default function AdminTournamentCreatePage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  // When editing, load the existing tournament and pre-fill the form
   useEffect(() => {
     if (!isEdit) return
     getTournament(id)
@@ -113,7 +111,6 @@ export default function AdminTournamentCreatePage() {
 
       <form onSubmit={handleSubmit} style={styles.form}>
 
-        {/* Basic info */}
         <fieldset style={styles.fieldset}>
           <legend style={styles.legend}>Basic Information</legend>
 
@@ -133,7 +130,6 @@ export default function AdminTournamentCreatePage() {
           </div>
         </fieldset>
 
-        {/* Game rules */}
         <fieldset style={styles.fieldset}>
           <legend style={styles.legend}>Game Rules</legend>
 
@@ -190,7 +186,6 @@ export default function AdminTournamentCreatePage() {
           </div>
         </fieldset>
 
-        {/* Trophy */}
         <fieldset style={styles.fieldset}>
           <legend style={styles.legend}>Trophy</legend>
 

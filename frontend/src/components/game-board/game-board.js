@@ -8,10 +8,10 @@ function esc(str) {
     .replace(/"/g, '&quot;')
 }
 
-class GameBoard extends HTMLElement { // https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements
+class GameBoard extends HTMLElement {
   constructor() {
     super()
-    this.attachShadow({ mode: 'open' }) // https://developer.mozilla.org/en-US/docs/Web/API/Element/attachShadow
+    this.attachShadow({ mode: 'open' })
     this._gameData       = null
     this._currentUserId  = ''
     this._socketState    = null
@@ -31,9 +31,8 @@ class GameBoard extends HTMLElement { // https://developer.mozilla.org/en-US/doc
   }
 
   _attachListeners() {
-    // die-hold bubbles up through player-element into this shadow root
     this.shadowRoot.addEventListener('die-hold', (e) => {
-      const path = e.composedPath() // https://developer.mozilla.org/en-US/docs/Web/API/Event/composedPath
+      const path = e.composedPath() 
       const playerEl = path.find(el => el.tagName === 'PLAYER-ELEMENT')
       if (!playerEl) return
       const players = [...this.shadowRoot.querySelectorAll('player-element')]
@@ -48,7 +47,6 @@ class GameBoard extends HTMLElement { // https://developer.mozilla.org/en-US/doc
       }))
     })
 
-    // Action buttons (Roll, Done, Check, Bet, Call, Raise, Fold)
     this.shadowRoot.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-action]')
       if (!btn || btn.disabled) return
@@ -70,7 +68,6 @@ class GameBoard extends HTMLElement { // https://developer.mozilla.org/en-US/doc
     return players.findIndex(p => String(p.user?._id ?? p.user) === String(this._currentUserId))
   }
 
-  // Build a map from userId → username using game data (which has populated user objects)
   _usernameMap() {
     const map = {}
     ;(this._gameData?.players ?? []).forEach(p => {
@@ -343,7 +340,6 @@ class GameBoard extends HTMLElement { // https://developer.mozilla.org/en-US/doc
       <div class="board">${content}</div>
     `
 
-    // Set complex properties on player-elements after innerHTML (attributes can't carry arrays)
     const ss = this._socketState
     if (status === 'ongoing' && ss && ss.phase !== 'showdown') {
       this._setPlayerProps()

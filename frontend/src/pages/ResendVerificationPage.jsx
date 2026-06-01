@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { resendVerification } from '../api/users'
 import ErrorMessage from '../components/ui/ErrorMessage'
 
-// Lets unverified users request a new verification email.
 export default function ResendVerificationPage() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)

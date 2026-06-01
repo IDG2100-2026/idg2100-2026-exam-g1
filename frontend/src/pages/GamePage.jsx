@@ -6,7 +6,7 @@ import { getGame, joinGame, leaveGame } from "../api/games";
 import { getComments } from "../api/comments";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import ErrorMessage from "../components/ui/ErrorMessage";
-import { io } from "socket.io-client"; // https://socket.io/docs/v4/client-api/
+import { io } from "socket.io-client";
 import GameBoard from "../components/game-board/GameBoard";
 import { playRoll, playHold, playRoundStart, playRoundEnd, playGameEnd } from "../utils/sounds";
 
@@ -98,7 +98,6 @@ export default function GamePage() {
     return () => clearInterval(interval);
   }, [id]);
 
-  // Auto-join if navigated here from the lobby with autoJoin flag
   useEffect(() => {
     if (location.state?.autoJoin && game && isLoggedIn) {
       const alreadyIn = game.players?.some(
@@ -109,7 +108,7 @@ export default function GamePage() {
   }, [game?._id]);
 
   useEffect(() => {
-    commentsEndRef.current?.scrollIntoView({ behavior: "smooth" }); // https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
+    commentsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [comments]);
 
   async function handlePostComment(e) {
@@ -123,13 +122,11 @@ export default function GamePage() {
     setCommentText("");
   }
 
-  // Emit the correct socket event for each board action
-  const handleGameAction = useCallback((action, amount) => { // https://react.dev/reference/react/useCallback
+  const handleGameAction = useCallback((action, amount) => {
     const socket = socketRef.current;
     if (!socket) return;
     switch (action) {
       case "roll":
-        // Read fresh held state via functional updater to avoid stale closure
         setSocketState((prev) => {
           socket.emit("rollDice", {
             matchId: id,
@@ -159,7 +156,6 @@ export default function GamePage() {
     }
   }, [id]);
 
-  // Toggle a die's held state (only the current user's own dice)
   const handleDieHold = useCallback((playerId, dieIndex) => {
     if (playerId !== currentUser?._id) return;
     if (soundOn) playHold();
@@ -171,7 +167,6 @@ export default function GamePage() {
     });
   }, [currentUser?._id]);
 
-  // WebSocket: comments + all game events
   useEffect(() => {
     const socket = io(import.meta.env.VITE_API_URL, { auth: { token } });
     socketRef.current = socket;
@@ -373,7 +368,6 @@ export default function GamePage() {
           )}
         </div>
 
-        {/* Player ELO bar */}
         <div style={styles.playerBar}>
           {game.players?.map((p, i) => (
             <div key={i} style={styles.playerChip}>
@@ -385,7 +379,6 @@ export default function GamePage() {
           ))}
         </div>
 
-        {/* Board */}
         {isWaiting ? (
           <div style={{ ...styles.board, background: boardColor, position: "relative" }}>
             <div style={styles.waitingOverlay}>
@@ -404,7 +397,6 @@ export default function GamePage() {
         )}
       </div>
 
-      {/* Comments sidebar */}
       <aside style={styles.sidebar}>
         <h2 style={styles.sidebarTitle}>Comments</h2>
 

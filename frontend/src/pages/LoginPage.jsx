@@ -5,7 +5,6 @@ import { useAppearance } from "../context/AppearanceContext";
 import { login as loginApi } from "../api/users";
 import ErrorMessage from "../components/ui/ErrorMessage";
 
-// Login form — validates email + password and redirects to homepage on success.
 export default function LoginPage() {
   const { login } = useAuth();
   const { loadFromBackend } = useAppearance();
