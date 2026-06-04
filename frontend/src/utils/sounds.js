@@ -1,6 +1,6 @@
 function ctx() {
   if (!window._sfxCtx) {
-    window._sfxCtx = new (window.AudioContext || window.webkitAudioContext)() // https://developer.mozilla.org/en-US/docs/Web/API/AudioContext
+    window._sfxCtx = new (window.AudioContext || window.webkitAudioContext)()
   }
   return window._sfxCtx
 }
@@ -8,8 +8,8 @@ function ctx() {
 function tone(freq, duration, type = 'sine', vol = 0.25, delay = 0) {
   try {
     const c = ctx()
-    const osc  = c.createOscillator() // https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode
-    const gain = c.createGain() // https://developer.mozilla.org/en-US/docs/Web/API/GainNode
+    const osc  = c.createOscillator()
+    const gain = c.createGain() 
     osc.connect(gain)
     gain.connect(c.destination)
     osc.type = type
